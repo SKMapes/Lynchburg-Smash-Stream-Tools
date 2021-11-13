@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta   charset = "UTF-8">
+        <script>
+            let startup = true;
+
+            window.onload = init;
+
+            var bg_lines = 0;
+
+            function init() {
+                async function main() {
+                    const game = await get_info();
+                    parse_data(game);
+                }
+                //main();
+                //setInterval( () => {
+                //    main();
+                //}, 500);
+                setInterval( () => {
+                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
+                    bg_lines -= 0.125;
+                }, 15);
+            }/*
+
+            function parse_data(game) {
+                return;
+            }*/
+        </script>
+        <style>
+            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+
+            body {
+                width:      1920px;
+                height:     1080px;
+                background: transparent;
+                padding:    0px;
+                margin:     0px;
+                color:      #000000;
+            }
+
+            .absolute { position: absolute; }
+            .fade { transition: opacity 0.5s; transition-timing-function: ease-in-out; }
+            .slide { transition: transform 0.5s; transition-timing-function: ease-in-out; }
+            .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
+
+            .tournament_logo {
+                width: 155px;   height: 128px;
+                bottom: 8px;    left: 896px;
+                -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+            }
+
+            .tournament_logo_back {
+                width: 128px;   height: 128px;
+            }
+
+            .tournament_logo_lines {
+                width: 155px;   height: 128px;
+                background-image: url("../../img/logos/summit_logo_lines.png");
+                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
+                background-repeat: repeat-x;
+            }
+
+            .set_panel {
+                width: 308px;   height: 48px;
+                top: 0px;       left: 806px;
+                z-index: -1;
+                -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+            }
+
+            .set_name_location {
+                font-size: 28px;
+                width: 1920px;  height: 32px;
+                top: 4px;       left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                text-transform: uppercase;
+                text-align: center;
+                letter-spacing: 2px;
+                line-height: 32px;
+            }
+
+            .p1_hud_location {
+                bottom: 0px;    left: 0px;
+                width: 224px;   height: 252px;
+                border: solid 8px #51CCC1;
+            }
+
+            .p1_name_location {
+                font-size: 24px;
+                width: 216px;
+                bottom: 0px;        left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px;       text-transform: uppercase;
+                text-align: left;
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+            }
+
+            .p1_name_value {
+                width: 186px;
+                float: left;
+            }
+
+            .p1_score_location {
+                font-size: 24px;
+                bottom: 0px;        right: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;
+                text-align: right;  text-transform: uppercase;
+                background-color: #FFFFFF;
+            }
+
+            .p2_hud_location {
+                bottom: 0px;    right: 0px;
+                width: 224px;   height: 252px;
+                border: solid 8px #51CCC1;
+            }
+
+            .p2_name_location {
+                font-size: 24px;
+                width: 216px;
+                bottom: 0px;    right: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px;   text-transform: uppercase;
+                text-align: right;
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+            }
+
+            .p2_name_value_container {
+                width: 186px;
+                float: right;
+            }
+
+            .p2_score_location {
+                font-size: 24px;
+                bottom: 0px;        left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;
+                text-align: right;  text-transform: uppercase;
+                background-color: #FFFFFF;
+                text-align: left;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div            id = "tournament_logo"          class = "absolute tournament_logo">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/summit_logo_back.png">
+            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
+        </div>
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_summit.png">
+        <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
+            <span       id = "set_name_value"           class = "set_name_value">Grand Finals</span>
+        </div>
+        <div            id = "p1_hud_location"          class = "absolute p1_hud_location">
+            <span       id = "p1_id_value"              class = "p1_id_value"></span>
+            <div        id = "p1_name_location"         class = "absolute fade_slide p1_name_location">
+                <div    id = "p1_name_value_container"  class = "p1_name_value">
+                    <span   id = "p1_name_value"            class = "p1_name_value">Player 1 [w]</span>
+                </div>
+            </div>
+            <div        id = "p1_score_location"        class = "absolute fade_slide p1_score_location">
+                <span   id = "p1_score_value"           class = "p1_score_value">0</span>
+            </div>
+        </div>
+        <div            id = "p2_hud_location"          class = "absolute p2_hud_location">
+            <span       id = "p2_id_value"              class = "p2_id_value"></span>
+            <div        id = "p2_name_location"         class = "absolute fade_slide p2_name_location">
+                <div    id = "p2_name_value_container"  class = "p2_name_value_container">
+                    <span   id = "p2_name_value"            class = "p2_name_value">[l] Player 2</span>
+                </div>
+            </div>
+            <div        id = "p2_score_location"        class = "absolute fade_slide p2_score_location">
+                <span   id = "p2_score_value"           class = "p2_score_value">2</span>
+            </div>
+        </div>
+    </body>
+</html>

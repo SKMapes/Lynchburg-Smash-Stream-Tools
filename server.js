@@ -55,6 +55,10 @@ async function get_tournament(tournament_slug) {
               user {
                 name
                 discriminator
+                authorizations {
+                  externalUsername
+                  type
+                }
               }
             }
           }
@@ -88,6 +92,7 @@ async function get_tournament(tournament_slug) {
     const tournamentData = await graphQLClient.request(query, {
         slug: tournament_slug
     });
+    console.log(tournamentData);
     parse_tournament_data(tournamentData.tournament);
 }
 

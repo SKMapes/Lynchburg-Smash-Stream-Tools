@@ -23,6 +23,8 @@
             let tournament = {};
             let tournament_info = {};
 
+            const DEBUG = true;
+
             window.onload = init;
 
             function sleep(ms) {
@@ -34,21 +36,18 @@
                 document.getElementById("form").action = "http://" + ip;
                 document.getElementById("form_tournament").action = "http://" + ip + "/tournament";
 
-                document.getElementById("p1_user").addEventListener("change", p1_user_update);
-                document.getElementById("p2_user").addEventListener("change", p2_user_update);
                 document.getElementById("p1_score_+").addEventListener("click", p1_score_step_up);
                 document.getElementById("p1_score_-").addEventListener("click", p1_score_step_down);
                 document.getElementById("p2_score_+").addEventListener("click", p2_score_step_up);
                 document.getElementById("p2_score_-").addEventListener("click", p2_score_step_down);
-                document.getElementById("upcoming_p1_user").addEventListener("change", upcoming_p1_user_update);
-                document.getElementById("upcoming_p2_user").addEventListener("change", upcoming_p2_user_update);
-                document.getElementById("c1_user").addEventListener("change", c1_user_update);
-                document.getElementById("c2_user").addEventListener("change", c2_user_update);
+
                 document.getElementById("event_name").addEventListener("change", event_update);
                 document.getElementById("set_name").addEventListener("change", set_update);
-                document.getElementById("round_number").addEventListener("change", set_update);
                 document.getElementById("upcoming_set_name").addEventListener("change", upcoming_set_update);
-                document.getElementById("upcoming_round_number").addEventListener("change", upcoming_set_update);
+
+                document.getElementById("c1_name").addEventListener("change", c1_user_update);
+                document.getElementById("c2_name").addEventListener("change", c2_user_update);
+                
                 document.getElementById("swap_players").addEventListener("click", swap_players);
                 document.getElementById("swap_upcoming_players").addEventListener("click", swap_upcoming_players);
                 document.getElementById("swap_casters").addEventListener("click", swap_casters);
@@ -58,10 +57,14 @@
 
                 tournament = await get_file("http://" + ip + "/tournament");
                 tournament_info = await get_file("http://" + ip + "/info");
-                console.log(tournament);
-                console.log(tournament_info);
-                document.getElementById("tournament_name").value = tournament["name"];
-                document.getElementById("tournament_date").value = tournament["date"];
+
+                if (DEBUG) {
+                    console.log(tournament);
+                    console.log(tournament_info);
+                }
+
+                document.getElementById("tournament_name").value = tournament_info["name"];
+                document.getElementById("tournament_date").value = tournament_info["date"];
                 document.getElementById("tournament_slug").value = tournament["slug"];
                 for (key in tournament_info) {
                     try {
@@ -94,7 +97,7 @@
                             document.getElementById(key).value = tournament_info[key];
                         }
                     } catch {
-                        console.log("document.getElementById(" + key + ").value NOT FOUND");
+                        
                     }
                 }
                 set_update();
@@ -121,39 +124,29 @@
                 }
 
                 var event_name = document.getElementById("event_name");
-                event_name.options.length = 1;
+                var str = "";
                 tournament["events"].forEach(async function(item, i) {
-                    event_name.options.add(new Option(item["name"], item["name"], false));
+                    str += '<option name="' + item["name"] + '" value="' + item["name"] + '" data-id="' + item["name"] + '">' + '</option>';
                 });
+                document.getElementById("event_name_list").innerHTML = str;
                 event_name.value = tournament_info["event_name"];
 
-                var c1_user = document.getElementById("c1_user");
-                c1_user.options.length = 1;
-                var c2_user = document.getElementById("c2_user");
-                c2_user.options.length = 1;
+                str = "";
 
                 tournament["participants"].forEach(async function(p, i) {
-                    if (p["name"] != null && p["name"] != "") {
-                        c1_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                        c2_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                    }
-                    else {
-                        c1_user.options.add(new Option(p["tag"], p["id"], false));
-                        c2_user.options.add(new Option(p["tag"], p["id"], false));
-                    }
+                    str += build_option(p);
                 });
+                document.getElementById("c1_user_list").innerHTML = str;
+                document.getElementById("c2_user_list").innerHTML = str;
+
                 await event_update();
                 if (document.getElementById("event_name").value != "") {
-                    document.getElementById("p1_user").value = tournament_info["p1_user"];
-                    document.getElementById("p2_user").value = tournament_info["p2_user"];
-                    document.getElementById("upcoming_p1_user").value = tournament_info["upcoming_p1_user"];
-                    document.getElementById("upcoming_p2_user").value = tournament_info["upcoming_p2_user"];
-                    document.getElementById("c1_user").value = tournament_info["c1_user"];
-                    document.getElementById("c2_user").value = tournament_info["c2_user"];
-                    p1_user_update();
-                    p2_user_update();
-                    upcoming_p1_user_update();
-                    upcoming_p2_user_update();
+                    document.getElementById("p1_name").value = tournament_info["p1_name"];
+                    document.getElementById("p2_name").value = tournament_info["p2_name"];
+                    document.getElementById("upcoming_p1_name").value = tournament_info["upcoming_p1_name"];
+                    document.getElementById("upcoming_p2_name").value = tournament_info["upcoming_p2_name"];
+                    document.getElementById("c1_name").value = tournament_info["c1_name"];
+                    document.getElementById("c2_name").value = tournament_info["c2_name"];
                     c1_user_update();
                     c2_user_update();
                 }
@@ -180,67 +173,56 @@
                 }
             }
 
+            function build_option(p) {
+                var tag = p["tag"];
+                var name = "";
+                if (p["name"] != null && p["name"] != "") {
+                    name = p["name"];
+                }
+                else {
+                    name = "";
+                }
+                var result = '<option name="' + tag + '" value="' + tag + '" data-id="' + p["id"] + '">' + '</option>';
+                return result;
+            }
+
             async function tournament_selected() {
                 await sleep(5000);
                 tournament = await get_file("http://" + ip + "/tournament");
                 console.log(tournament);
                 document.getElementById("tournament_name").value = tournament["name"];
                 document.getElementById("tournament_date").value = tournament["date"];
-                var event_name = document.getElementById("event_name");
-                event_name.options.length = 1;
+                var str = "";
                 tournament["events"].forEach(async function(item, i) {
-                    event_name.options.add(new Option(item["name"], item["name"], false));
+                    str += '<option name="' + item["name"] + '" value="' + item["name"] + '" data-id="' + item["name"] + '">' + '</option>';
                 });
+                document.getElementById("event_name_list").innerHTML = str;
 
-                var c1_user = document.getElementById("c1_user");
-                c1_user.options.length = 1;
-                var c2_user = document.getElementById("c2_user");
-                c2_user.options.length = 1;
-
+                str = "";
                 tournament["participants"].forEach(async function(p, i) {
-                    if (p["name"] != null && p["name"] != "") {
-                        c1_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                        c2_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                    }
-                    else {
-                        c1_user.options.add(new Option(p["tag"], p["id"], false));
-                        c2_user.options.add(new Option(p["tag"], p["id"], false));
-                    }
+                    str += build_option(p);
                 });
+                document.getElementById("c1_user_list").innerHTML = str;
+                document.getElementById("c2_user_list").innerHTML = str;
             }
 
             function event_update() {
-                var p1_user = document.getElementById("p1_user");
-                p1_user.options.length = 1;
-                var p2_user = document.getElementById("p2_user");
-                p2_user.options.length = 1;
-                var upcoming_p1_user = document.getElementById("upcoming_p1_user");
-                upcoming_p1_user.options.length = 1;
-                var upcoming_p2_user = document.getElementById("upcoming_p2_user");
-                upcoming_p2_user.options.length = 1;
+                var str = "";
                 tournament["events"].forEach(function(item, i) {
                     if (item["name"] == document.getElementById("event_name").value) {
                         tournament["participants"].forEach(async function(p, i2) {
                             item["entrants"].forEach(async function(p2, i3) {
                                 if (p2 == p["id"]) {
-                                    if (p["name"] != null && p["name"] != "") {
-                                        p1_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                                        p2_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                                        upcoming_p1_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                                        upcoming_p2_user.options.add(new Option(p["tag"] + " - " + p["name"], p["id"], false));
-                                    }
-                                    else {
-                                        p1_user.options.add(new Option(p["tag"], p["id"], false));
-                                        p2_user.options.add(new Option(p["tag"], p["id"], false));
-                                        upcoming_p1_user.options.add(new Option(p["tag"], p["id"], false));
-                                        upcoming_p2_user.options.add(new Option(p["tag"], p["id"], false));
-                                    }
-                                    console.log(p["tag"] + " - " + p["name"] + " / " + p["id"]);
+                                    str += build_option(p);
                                 }
                             });
                         });
                     }
                 });
+                document.getElementById("p1_user_list").innerHTML = str;
+                document.getElementById("p2_user_list").innerHTML = str;
+                document.getElementById("upcoming_p1_user_list").innerHTML = str;
+                document.getElementById("upcoming_p2_user_list").innerHTML = str;
             }
 
             async function swap_players() {
@@ -262,16 +244,6 @@
             }
 
             async function set_update() {
-                document.getElementById("set_name_value").value = document.getElementById("set_name").value;
-                if (document.getElementById("set_name").value == "Round" || document.getElementById("set_name").value == "Winners Round" || document.getElementById("set_name").value == "Losers Round") {
-                    document.getElementById("set_name_value").value += " " + document.getElementById("round_number").value;
-                }
-                if (document.getElementById("set_name").value == "Round" || document.getElementById("set_name").value == "Winners Round" || document.getElementById("set_name").value == "Losers Round") {
-                    document.getElementById("round_number").style.opacity = 1;
-                }
-                else {
-                    document.getElementById("round_number").style.opacity = 0;
-                }
                 if (document.getElementById("set_name").value == "Grand Finals" || document.getElementById("set_name").value == "Grand Finals Reset") {
                     document.getElementById("p1_bracket_div_1").style.opacity = 1;
                     document.getElementById("p1_bracket_div_2").style.opacity = 1;
@@ -287,15 +259,17 @@
             }
 
             async function upcoming_set_update() {
-                document.getElementById("upcoming_set_name_value").value = document.getElementById("upcoming_set_name").value;
-                if (document.getElementById("upcoming_set_name").value == "Round" || document.getElementById("upcoming_set_name").value == "Winners Round" || document.getElementById("upcoming_set_name").value == "Losers Round") {
-                    document.getElementById("upcoming_set_name_value").value += " " + document.getElementById("upcoming_round_number").value;
-                }
-                if (document.getElementById("upcoming_set_name").value == "Round" || document.getElementById("upcoming_set_name").value == "Winners Round" || document.getElementById("upcoming_set_name").value == "Losers Round") {
-                    document.getElementById("upcoming_round_number").style.opacity = 1;
+                if (document.getElementById("upcoming_set_name").value == "Grand Finals" || document.getElementById("upcoming_set_name").value == "Grand Finals Reset") {
+                    document.getElementById("upcoming_p1_bracket_div_1").style.opacity = 1;
+                    document.getElementById("upcoming_p1_bracket_div_2").style.opacity = 1;
+                    document.getElementById("upcoming_p2_bracket_div_1").style.opacity = 1;
+                    document.getElementById("upcoming_p2_bracket_div_2").style.opacity = 1;
                 }
                 else {
-                    document.getElementById("upcoming_round_number").style.opacity = 0;
+                    document.getElementById("upcoming_p1_bracket_div_1").style.opacity = 0;
+                    document.getElementById("upcoming_p1_bracket_div_2").style.opacity = 0;
+                    document.getElementById("upcoming_p2_bracket_div_1").style.opacity = 0;
+                    document.getElementById("upcoming_p2_bracket_div_2").style.opacity = 0;
                 }
             }
 
@@ -321,26 +295,6 @@
                 document.getElementById("upcoming_p2_user").value = "";
                 document.getElementById("upcoming_set_name").value = "";
                 document.getElementById("upcoming_round_number").value = "";
-                set_update();
-                upcoming_set_update();
-                p1_user_update();
-                p2_user_update();
-                upcoming_p1_user_update();
-                upcoming_p2_user_update();
-            }
-
-            async function p1_user_update() {
-                if (document.getElementById("p1_user").value != "") {
-                    var p = await get_player(document.getElementById("p1_user").value);
-                    document.getElementById("p1_name").value = p["tag"];
-                } else { document.getElementById("p1_name").value = ""; }
-            }
-
-            async function p2_user_update() {
-                if (document.getElementById("p2_user").value != "") {
-                    var p = await get_player(document.getElementById("p2_user").value);
-                    document.getElementById("p2_name").value = p["tag"];
-                } else { document.getElementById("p2_name").value = ""; }
             }
 
             async function p1_score_step_up()   { document.getElementById("p1_score").stepUp() }
@@ -348,24 +302,10 @@
             async function p2_score_step_up()   { document.getElementById("p2_score").stepUp() }
             async function p2_score_step_down() { document.getElementById("p2_score").stepDown() }
 
-            async function upcoming_p1_user_update() {
-                if (document.getElementById("upcoming_p1_user").value != "") {
-                    var p = await get_player(document.getElementById("upcoming_p1_user").value);
-                    document.getElementById("upcoming_p1_name").value = p["tag"];
-                } else { document.getElementById("upcoming_p1_name").value = ""; }
-            }
-
-            async function upcoming_p2_user_update() {
-                if (document.getElementById("upcoming_p2_user").value != "") {
-                    var p = await get_player(document.getElementById("upcoming_p2_user").value);
-                    document.getElementById("upcoming_p2_name").value = p["tag"];
-                } else { document.getElementById("upcoming_p2_name").value = ""; }
-            }
-
             async function c1_user_update() {
-                if (document.getElementById("c1_user").value != "") {
-                    var c = await get_player(document.getElementById("c1_user").value);
-                    document.getElementById("c1_name").value = c["tag"];
+                var selected = document.getElementById("c1_user_list").options.namedItem(document.getElementById("c1_name").value);
+                if (selected) {
+                    var c = await get_player(selected.getAttribute("data-id"));
                     try {
                         document.getElementById("c1_socials[1][externalUsername]").value = c["socials"][0]["externalUsername"];
                         document.getElementById("c1_socials[1][type]").value = c["socials"][0]["type"];
@@ -395,14 +335,19 @@
                     document.getElementById("c1_socials[2][externalUsername]").value = "";
                     document.getElementById("c1_socials[2][type]").value = "";
                     document.getElementById("c1_socials[3][externalUsername]").value = "";
-                    document.getElementById("c1_socials[4][type]").value = "";
+                    document.getElementById("c1_socials[3][type]").value = "";
+                }
+                if (DEBUG) {
+                    console.log(document.getElementById("c2_socials[1][externalUsername]").value + " - " + document.getElementById("c2_socials[1][type]").value);
+                    console.log(document.getElementById("c2_socials[2][externalUsername]").value + " - " + document.getElementById("c2_socials[2][type]").value);
+                    console.log(document.getElementById("c2_socials[3][externalUsername]").value + " - " + document.getElementById("c2_socials[3][type]").value);
                 }
             }
 
             async function c2_user_update() {
-                if (document.getElementById("c2_user").value != "") {
-                    var c = await get_player(document.getElementById("c2_user").value);
-                    document.getElementById("c2_name").value = c["tag"];
+                var selected = document.getElementById("c2_user_list").options.namedItem(document.getElementById("c2_name").value);
+                if (selected) {
+                    var c = await get_player(selected.getAttribute("data-id"));
                     try {
                         document.getElementById("c2_socials[1][externalUsername]").value = c["socials"][0]["externalUsername"];
                         document.getElementById("c2_socials[1][type]").value = c["socials"][0]["type"];
@@ -432,7 +377,12 @@
                     document.getElementById("c2_socials[2][externalUsername]").value = "";
                     document.getElementById("c2_socials[2][type]").value = "";
                     document.getElementById("c2_socials[3][externalUsername]").value = "";
-                    document.getElementById("c2_socials[4][type]").value = "";
+                    document.getElementById("c2_socials[3][type]").value = "";
+                }
+                if (DEBUG) {
+                    console.log(document.getElementById("c1_socials[1][externalUsername]").value + " - " + document.getElementById("c1_socials[1][type]").value);
+                    console.log(document.getElementById("c1_socials[2][externalUsername]").value + " - " + document.getElementById("c1_socials[2][type]").value);
+                    console.log(document.getElementById("c1_socials[3][externalUsername]").value + " - " + document.getElementById("c1_socials[3][type]").value);
                 }
             }
         </script>
@@ -478,7 +428,7 @@
                 min-width: 50px;
                 max-width: 150px;
             }
-            select { min-width: 218px; max-width: 218px; }
+            select, datalist { min-width: 218px; max-width: 218px; }
             input[type="number"] {
                 min-width: 10px;
                 max-width: 10px;
@@ -528,8 +478,7 @@
                 background: #CC4444;
             }
 
-            .p1_bracket { opacity: 0; }
-            .p2_bracket { opacity: 0; }
+            .p1_bracket, .upcoming_p1_bracket, .p2_bracket, .upcoming_p2_bracket { opacity: 0; }
         </style>
     </head>
     <body>
@@ -537,7 +486,6 @@
         <form id="form_tournament" action="/tournament" method="POST" target="dummy">
             <div>
                 <fieldset>
-                    <legend>Tournament</legend>
                     <div>
                         <input type="text"      id="tournament_slug"    name="tournament_slug"  placeholder="Tournament Slug">
                         <button id="tournament_selected">Submit</button>
@@ -552,9 +500,10 @@
                     <div>
                         <input type="text"      id="tournament_name"    name="tournament_name"  placeholder="Tournament Name">
                         <input type="text"      id="tournament_date"    name="tournament_date"  placeholder="Tournament Date">
-                        <select                 id="event_name"         name="event_name">
-                            <option selected    value="">Event Name</option>
-                        </select>
+                        <input type="text"      id="event_name"      name="event_name"    placeholder="Event Name"  autoComplete="on"   list="event_name_list">
+                        <datalist               id="event_name_list" name="event_name_list">
+                            <option             value=""></option>
+                        </datalist>
                     </div>
                 </fieldset>
             </div>
@@ -563,15 +512,15 @@
                 <fieldset>
                     <legend>Players</legend>
                     <div>
-                        <select                 id="p1_user"        name="p1_user">
-                            <option selected    value="">None</option>
-                        </select>
-                        <input  type="text"     id="p1_name"        name="p1_name"  style="display: none;">
+                        <input type="text"      id="p1_name"      name="p1_name"    placeholder="Player 1"  autoComplete="on"   list="p1_user_list">
+                        <datalist               id="p1_user_list" name="p1_user_list">
+                            <option             value=""></option>
+                        </datalist>
                         <button id="swap_players"   style="max-width: none; width: 100px; margin-left: 16px; margin-right: 16px;">Swap</button>
-                        <select                 id="p2_user"        name="p2_user">
-                            <option selected    value="">None</option>
-                        </select>
-                        <input  type="text"     id="p2_name"        name="p2_name"  style="display: none;">
+                        <input type="text"      id="p2_name"      name="p2_name"    placeholder="Player 2"  autoComplete="on"   list="p2_user_list">
+                        <datalist               id="p2_user_list" name="p2_user_list">
+                            <option             value=""></option>
+                        </datalist>
                     </div>
                     <div>
                         <button type="button"   id="p1_score_-"     class="left_button">-</button>
@@ -590,24 +539,22 @@
                             </label>
                         </div>
                         <div style="margin: auto;">
-                            <select                 id="set_name"           style="min-width: 168px; max-width: 168px;">
-                                <option selected    value="">Set Name</option>
-                                <option             value="Friendlies">Friendlies</option>
-                                <option             value="Round">Round X</option>
-                                <option             value="Losers Round">Losers Round X</option>
-                                <option             value="Losers Quarters">Losers Quarters</option>
-                                <option             value="Losers Semis">Losers Semis</option>
-                                <option             value="Losers Finals">Losers Finals</option>
-                                <option             value="Winners Round">Winners Round X</option>
-                                <option             value="Winners Quarters">Winners Quarters</option>
-                                <option             value="Winners Semis">Winners Semis</option>
-                                <option             value="Winners Finals">Winners Finals</option>
-                                <option             value="Grand Finals">Grand Finals</option>
-                                <option             value="Grand Finals Reset">Grand Finals Reset</option>
-                            </select>
-                            <input type="text"      id="round_number"       placeholder="#" style="opacity: 0; min-width: 15px; width: 15px; max-width: 15px;">
+                            <input type="text"      id="set_name"               name="set_name"             placeholder="Set Name"  autoComplete="on"   list="set_name_list">
+                            <datalist               id="set_name_list"          style="min-width: 168px; max-width: 168px;">
+                                <option             value="Friendlies"></option>
+                                <option             value="Round "></option>
+                                <option             value="Losers Round "></option>
+                                <option             value="Losers Quarters"></option>
+                                <option             value="Losers Semis"></option>
+                                <option             value="Losers Finals"></option>
+                                <option             value="Winners Round "></option>
+                                <option             value="Winners Quarters"></option>
+                                <option             value="Winners Semis"></option>
+                                <option             value="Winners Finals"></option>
+                                <option             value="Grand Finals"></option>
+                                <option             value="Grand Finals Reset"></option>
+                            </datalist>
                         </div>
-                        <input type="text" id="set_name_value" name="set_name" value="" style="display: none;">
                         <div class="p2_bracket" id="p2_bracket_div_1">
                             <input type="radio" id="p2_bracket_1" name="p2_bracket" value="Winners" checked>
                             <label for="p2_bracket_1">
@@ -636,36 +583,58 @@
                         </div>
                     </div>
                     <div>
-                        <select                 id="upcoming_p1_user"   name="upcoming_p1_user">
-                            <option selected    value="">None</option>
-                        </select>
-                        <input  type="text"     id="upcoming_p1_name"   name="upcoming_p1_name"  style="display: none;">
-                        <button id="swap_upcoming_players"  style="max-width: none; width: 100px; margin-left: 16px; margin-right: 16px;">Swap</button>
-                        <select                 id="upcoming_p2_user"   name="upcoming_p2_user">
-                            <option selected    value="">None</option>
-                        </select>
-                        <input  type="text"     id="upcoming_p2_name"   name="upcoming_p2_name"  style="display: none;">
+                        <input type="text"      id="upcoming_p1_name"      name="upcoming_p1_name"    placeholder="Player 1"  autoComplete="on"   list="upcoming_p1_user_list">
+                        <datalist               id="upcoming_p1_user_list" name="upcoming_p1_user_list">
+                            <option             value=""></option>
+                        </datalist>
+                        <button id="swap_upcoming_players"   style="max-width: none; width: 100px; margin-left: 16px; margin-right: 16px;">Swap</button>
+                        <input type="text"      id="upcoming_p2_name"      name="upcoming_p2_name"    placeholder="Player 2"  autoComplete="on"   list="upcoming_p2_user_list">
+                        <datalist               id="upcoming_p2_user_list" name="upcoming_p2_user_list">
+                            <option             value=""></option>
+                        </datalist>
                     </div>
                     <div>
-                        <div style="margin: auto;">
-                            <select                 id="upcoming_set_name"  style="min-width: 168px; max-width: 168px;">
-                                <option selected    value="">Upcoming Set Name</option>
-                                <option             value="Friendlies">Friendlies</option>
-                                <option             value="Round">Round X</option>
-                                <option             value="Losers Round">Losers Round X</option>
-                                <option             value="Losers Quarters">Losers Quarters</option>
-                                <option             value="Losers Semis">Losers Semis</option>
-                                <option             value="Losers Finals">Losers Finals</option>
-                                <option             value="Winners Round">Winners Round X</option>
-                                <option             value="Winners Quarters">Winners Quarters</option>
-                                <option             value="Winners Semis">Winners Semis</option>
-                                <option             value="Winners Finals">Winners Finals</option>
-                                <option             value="Grand Finals">Grand Finals</option>
-                                <option             value="Grand Finals Reset">Grand Finals Reset</option>
-                            </select>
-                            <input type="text"      id="upcoming_round_number"       placeholder="#" style="opacity: 0; min-width: 15px; width: 15px; max-width: 15px;">
+                        <div class="upcoming_p1_bracket" id="upcoming_p1_bracket_div_1">
+                            <input type="radio" id="upcoming_p1_bracket_1"   name="upcoming_p1_bracket"   value="Winners" checked>
+                            <label for="upcoming_p1_bracket_1" style="border-left: 0px; border-right: 0px;">
+                                <h3>[W]</h3>
+                            </label>
                         </div>
-                        <input type="text" id="upcoming_set_name_value" name="upcoming_set_name"    value="" style="display: none;">
+                        <div class="upcoming_p1_bracket" id="upcoming_p1_bracket_div_2">
+                            <input type="radio" id="upcoming_p1_bracket_2" name="upcoming_p1_bracket" value="Losers">
+                            <label for="upcoming_p1_bracket_2">
+                                <h3>[L]</h3>
+                            </label>
+                        </div>
+                        <div style="margin: auto;">
+                            <input type="text"      id="upcoming_set_name"      name="upcoming_set_name"    placeholder="Upcoming Set Name"  autoComplete="on"   list="upcoming_set_name_list">
+                            <datalist               id="upcoming_set_name_list" style="min-width: 168px; max-width: 168px;">
+                                <option             value="Friendlies">
+                                <option             value="Round ">
+                                <option             value="Losers Round ">
+                                <option             value="Losers Quarters">
+                                <option             value="Losers Semis">
+                                <option             value="Losers Finals">
+                                <option             value="Winners Round ">
+                                <option             value="Winners Quarters">
+                                <option             value="Winners Semis">
+                                <option             value="Winners Finals">
+                                <option             value="Grand Finals">
+                                <option             value="Grand Finals Reset">
+                            </datalist>
+                        </div>
+                        <div class="upcoming_p2_bracket" id="upcoming_p2_bracket_div_1">
+                            <input type="radio" id="upcoming_p2_bracket_1" name="upcoming_p2_bracket" value="Winners" checked>
+                            <label for="upcoming_p2_bracket_1">
+                                <h3>[W]</h3>
+                            </label>
+                        </div>
+                        <div class="upcoming_p2_bracket" id="upcoming_p2_bracket_div_2">
+                            <input type="radio" id="upcoming_p2_bracket_2" name="upcoming_p2_bracket" value="Losers">
+                            <label for="upcoming_p2_bracket_2" style="border-left: 0px; border-right: 0px;">
+                                <h3>[L]</h3>
+                            </label>
+                        </div>
                     </div>
                 </fieldset>
             </div>
@@ -674,10 +643,10 @@
                 <fieldset>
                     <legend>Casters</legend>
                     <div>
-                        <select                 id="c1_user"        name="c1_user">
-                            <option selected    value="none">None</option>
-                        </select>
-                        <input  type="text"     id="c1_name"        name="c1_name"      style="display: none;">
+                        <input type="text"      id="c1_name"      name="c1_name"    placeholder="Caster 1"  autoComplete="on"   list="c1_user_list">
+                        <datalist               id="c1_user_list" name="c1_user_list">
+                            <option             value=""></option>
+                        </datalist>
                         <input  type="text"     id="c1_socials[1][externalUsername]"        name="c1_socials[1][externalUsername]"  style="display: none;">
                         <input  type="text"     id="c1_socials[1][type]"                    name="c1_socials[1][type]"              style="display: none;">
                         <input  type="text"     id="c1_socials[2][externalUsername]"        name="c1_socials[2][externalUsername]"  style="display: none;">
@@ -685,10 +654,10 @@
                         <input  type="text"     id="c1_socials[3][externalUsername]"        name="c1_socials[3][externalUsername]"  style="display: none;">
                         <input  type="text"     id="c1_socials[3][type]"                    name="c1_socials[3][type]"              style="display: none;">
                         <button id="swap_casters"   style="max-width: none; width: 100px; margin-left: 16px; margin-right: 16px;">Swap</button>
-                        <select                 id="c2_user"        name="c2_user">
-                            <option selected    value="none">None</option>
-                        </select>
-                        <input  type="text"     id="c2_name"        name="c2_name"      style="display: none;">
+                        <input type="text"      id="c2_name"      name="c2_name"    placeholder="Caster 2"  autoComplete="on"   list="c2_user_list">
+                        <datalist               id="c2_user_list" name="c2_user_list">
+                            <option             value=""></option>
+                        </datalist>
                         <input  type="text"     id="c2_socials[1][externalUsername]"        name="c2_socials[1][externalUsername]"  style="display: none;">
                         <input  type="text"     id="c2_socials[1][type]"                    name="c2_socials[1][type]"              style="display: none;">
                         <input  type="text"     id="c2_socials[2][externalUsername]"        name="c2_socials[2][externalUsername]"  style="display: none;">

@@ -14,19 +14,84 @@
                     const game = await get_info();
                     parse_data(game);
                 }
-                //main();
-                //setInterval( () => {
-                //    main();
-                //}, 500);
+                main();
+                setInterval( () => {
+                    main();
+                }, 500);
                 setInterval( () => {
                     document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
                     bg_lines -= 0.125;
                 }, 15);
-            }/*
+            }
 
+            function get_info(file) {
+                return new Promise(function(resolve) {
+                    const request = new XMLHttpRequest();
+                    request.addEventListener("load", request_listener);
+                    request.open("GET", "http://localhost:8000/info/");
+                    request.send();
+
+                    function request_listener () {
+                        resolve(JSON.parse(request.responseText))
+                    }
+                })
+            }
+
+            function fade_out(id, callback) {
+                document.getElementById(id).classList.toggle("fade_out", true);
+                document.getElementById(id).classList.toggle("fade_in", false);
+                setTimeout( function() { callback(); }, 500);
+            }
+
+            function fade_in(id) {
+                document.getElementById(id).classList.toggle("fade_in", true);
+                document.getElementById(id).classList.toggle("fade_out", false);
+            }
+            
             function parse_data(game) {
+
+                let p1_name = game["p1_name"];
+                let p2_name = game["p2_name"];
+                let p1_score = game["p1_score"];
+                let p2_score = game["p2_score"];
+
+                if (startup) {
+                    setTimeout(() => {
+
+                        document.getElementById("p1_name_value").textContent = p1_name;
+                        document.getElementById("p2_name_value").textContent = p2_name;
+                        document.getElementById("p1_score_value").textContent = p1_score;
+                        document.getElementById("p2_score_value").textContent = p2_score;
+
+                        fade_in("p1_name_location");
+                        fade_in("p2_name_location");
+                        fade_in("p1_score_location");
+                        fade_in("p2_score_location");
+
+                        startup = false;
+
+                    }, 500);
+                }
+                else {
+                    update_value("p1_name", p1_name);
+                    update_value("p2_name", p2_name);
+                    update_value("p1_score", p1_score);
+                    update_value("p2_score", p2_score);
+                }
                 return;
-            }*/
+            }
+
+            function update_value(id, value) {
+                if (document.getElementById(id + "_value").textContent != value) {
+                    fade_out(id + "_location", function() {});
+                    setTimeout( function() {
+                        document.getElementById(id + "_value").textContent = value;
+                        fade_in(id + "_location");
+                    }, 500);
+                }
+                return;
+            }
+
         </script>
         <style>
             @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
@@ -95,7 +160,10 @@
                 padding: 4px;       text-transform: uppercase;
                 text-align: left;
                 background-color: rgba(0, 0, 0, 0.75);
+                opacity: 0;
             }
+            .p1_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p1_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .p1_name_value {
                 width: 186px;
@@ -111,7 +179,10 @@
                 background-color: #FFFFFF;
                 color: #000000;
                 text-align: right;
+                opacity: 0;
             }
+            .p1_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p1_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
@@ -127,7 +198,10 @@
                 padding: 4px;   text-transform: uppercase;
                 text-align: right;
                 background-color: rgba(0, 0, 0, 0.75);
+                opacity: 0;
             }
+            .p2_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p2_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .p2_name_value_container {
                 width: 186px;
@@ -143,7 +217,10 @@
                 background-color: #FFFFFF;
                 color: #000000;
                 text-align: left;
+                opacity: 0;
             }
+            .p2_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p2_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
         </style>
     </head>
@@ -157,7 +234,6 @@
             <span       id = "set_name_value"           class = "set_name_value">Grand Finals</span>
         </div>
         <div            id = "p1_hud_location"          class = "absolute p1_hud_location">
-            <span       id = "p1_id_value"              class = "p1_id_value"></span>
             <div        id = "p1_name_location"         class = "absolute fade_slide p1_name_location">
                 <div    id = "p1_name_value_container"  class = "p1_name_value">
                     <span   id = "p1_name_value"            class = "p1_name_value">Player 1 [w]</span>
@@ -168,7 +244,6 @@
             </div>
         </div>
         <div            id = "p2_hud_location"          class = "absolute p2_hud_location">
-            <span       id = "p2_id_value"              class = "p2_id_value"></span>
             <div        id = "p2_name_location"         class = "absolute fade_slide p2_name_location">
                 <div    id = "p2_name_value_container"  class = "p2_name_value_container">
                     <span   id = "p2_name_value"            class = "p2_name_value">[l] Player 2</span>

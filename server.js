@@ -92,7 +92,6 @@ async function get_tournament(tournament_slug) {
     const tournamentData = await graphQLClient.request(query, {
         slug: tournament_slug
     });
-    console.log(tournamentData);
     parse_tournament_data(tournamentData.tournament);
 }
 
@@ -180,6 +179,7 @@ app.post("/", function(request, response) {
     tournament = request.body;  // update tournament info with what is given from the tool
 });
 app.post("/tournament", function(request, response) {
+    console.log(request.body);
     get_tournament(request.body.tournament_slug);  // update tournament info with what is given from the tool
 });
 

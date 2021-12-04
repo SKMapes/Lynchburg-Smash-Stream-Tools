@@ -4,108 +4,37 @@
         <meta   charset = "UTF-8">
         <script>
             let startup = true;
-            var bg_lines_x = 0;
 
             window.onload = init;
 
+            var bg_lines = 0;
+
             function init() {
                 async function main() {
-                    const game = await get_info("game");
+                    const game = await get_info();
                     parse_data(game);
                 }
                 main();
                 setInterval( () => {
-                    document.getElementById("bg_lines").style.backgroundPosition = bg_lines_x + "px " + 0 + "px";
-                    bg_lines_x += 1;
-                }, 25);
-                setInterval( () => {
                     main();
                 }, 500);
+                setInterval( () => {
+                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
+                    bg_lines -= 0.125;
+                }, 15);
             }
 
-            function parse_data(game) {
+            function get_info(file) {
+                return new Promise(function(resolve) {
+                    const request = new XMLHttpRequest();
+                    request.addEventListener("load", request_listener);
+                    request.open("GET", "http://localhost:8000/info/");
+                    request.send();
 
-                let set_name =          game["set_name"];
-                let event_name =        game["event_name"];
-                let tournament_name =   game["tournament_name"];
-                let tournament_date =   game["tournament_date"];
-
-                let p1_id =             game["p1_id"];
-                let p1_name =           game["p1_name"];
-                let p2_id =             game["p2_id"];
-                let p2_name =           game["p2_name"];
-
-                let c1_id =             game["c1_id"];
-                let c1_name =           game["c1_name"];
-                let c1_socials =        game["c1_socials"];
-                let c2_id =             game["c2_id"];
-                let c2_name =           game["c2_name"];
-                let c2_socials =        game["c2_socials"];
-
-                let upcoming_p1_id =    game["upcoming_p1_id"];
-                let upcoming_p1_name =  game["upcoming_p1_name"];
-                let upcoming_p2_id =    game["upcoming_p2_id"];
-                let upcoming_p2_name =  game["upcoming_p2_name"];
-                let upcoming_set_name = game["upcoming_set_name"];
-
-                if (startup == true) {
-
-                    document.getElementById("set_name_value").textContent =         set_name;
-                    document.getElementById("event_name_value").textContent =       event_name;
-                    document.getElementById("tournament_name_value").textContent =  tournament_name;
-                    document.getElementById("tournament_date_value").textContent =  tournament_date;
-                    document.getElementById("upcoming_set_name_value").textContent =        "UP NEXT: " + upcoming_set_name + " - " + upcoming_p1_name + " VS " + upcoming_p2_name;
-                    if (upcoming_p1_name == "") {
-                        document.getElementById("upcoming_set_name_value").textContent =    "UP NEXT: " + upcoming_set_name + " - " + upcoming_p2_name;
+                    function request_listener () {
+                        resolve(JSON.parse(request.responseText))
                     }
-                    if (upcoming_p2_name == "") {
-                        document.getElementById("upcoming_set_name_value").textContent =    "UP NEXT: " + upcoming_set_name + " - " + upcoming_p1_name;
-                    }
-                    if (upcoming_p1_name == "" && upcoming_p2_name == "" && upcoming_set_name != "") {
-                        document.getElementById("upcoming_set_name_value").textContent =    "UP NEXT: " + upcoming_set_name;
-                    }
-                    if (upcoming_p1_name == "" && upcoming_p2_name == "" && upcoming_set_name == "") {
-                        document.getElementById("upcoming_set_name_value").textContent =    "";
-                    }
-
-                    setTimeout(() => {
-
-                        fade_in("upcoming_set_name_location");
-                        swap_date();
-                        startup = false;
-
-                    }, 500);
-                }
-                else {
-                    /*if (p1_name != "" && p2_name != "") {
-                        if (document.getElementById("p_name_value").textContent != p1_name + " VS " + p2_name || document.getElementById("p_name_value").textContent != p1_name || document.getElementById("p_name_value").textContent != p2_name || document.getElementById("p_name_value").textContent != "") {
-                            if (p1_name == "" && p2_name == "") {
-                                update_value("p_name", "");
-                            }
-                            else if (p1_name == "") {
-                                update_value("p_name", p2_name);
-                            }
-                            else if (p2_name == "") {
-                                update_value("p_name", p1_name);
-                            }
-                            else {
-                                update_value("p_name", p1_name + " VS " + p2_name);
-                            }
-                        }
-                    }
-                    if (document.getElementById("set_name_value").textContent != set_name) {
-                        update_value("set_name", set_name);
-                    }*/
-                }
-                return;
-            }
-
-            function update_value(id, value) {
-                fade_out(id + "_location", function() {});
-                setTimeout( function() {
-                    document.getElementById(id + "_value").textContent = value;
-                    fade_in(id + "_location");
-                }, 500);
+                })
             }
 
             function fade_out(id, callback) {
@@ -118,120 +47,45 @@
                 document.getElementById(id).classList.toggle("fade_in", true);
                 document.getElementById(id).classList.toggle("fade_out", false);
             }
+            
+            function parse_data(game) {
 
-            function swap_date() {
-                fade_out("tournament_date_location", function() {});
-                fade_in("event_name_location", function() {});
-                setTimeout( function() { swap_event(); }, 7500);
+                if (startup) {
+                    setTimeout(() => {
+
+                        fade_in("set_name_location");
+
+                        startup = false;
+
+                    }, 500);
+                }
+                return;
             }
 
-            function swap_event() {
-                fade_in("tournament_date_location", function() {});
-                fade_out("event_name_location", function() {});
-                setTimeout( function() { swap_date(); }, 7500);
+            function update_value(id, value) {
+                if (document.getElementById(id + "_value").textContent != value) {
+                    fade_out(id + "_location", function() {});
+                    setTimeout( function() {
+                        document.getElementById(id + "_value").textContent = value;
+                        fade_in(id + "_location");
+                    }, 500);
+                }
+                return;
             }
 
-            function rotate_c1_socials_1() {
-                fade_in("c1_social_1_location");
-                fade_out("c1_social_2_location", function() {});
-                fade_out("c1_social_3_location", function() {});
-                setTimeout( function() {
-                    if (document.getElementById("c1_social_2_value").textContent == "") {
-                        rotate_c1_socials_1();
-                    }
-                    else {
-                        rotate_c1_socials_2();
-                    }
-                }, 7500);
-            }
-
-            function rotate_c1_socials_2() {
-                fade_in("c1_social_2_location");
-                fade_out("c1_social_1_location", function() {});
-                fade_out("c1_social_3_location", function() {});
-                setTimeout( function() {
-                    if (document.getElementById("c1_social_3_value").textContent == "") {
-                        rotate_c1_socials_1();
-                    }
-                    else {
-                        rotate_c1_socials_3();
-                    }
-                }, 7500);
-            }
-
-            function rotate_c1_socials_3() {
-                fade_in("c1_social_3_location");
-                fade_out("c1_social_1_location", function() {});
-                fade_out("c1_social_2_location", function() {});
-                setTimeout( function() { rotate_c1_socials_1(); }, 7500);
-            }
-
-            function rotate_c2_socials_1() {
-                fade_in("c2_social_1_location");
-                fade_out("c2_social_2_location", function() {});
-                fade_out("c2_social_3_location", function() {});
-                setTimeout( function() {
-                    if (document.getElementById("c2_social_2_value").textContent == "") {
-                        rotate_c2_socials_1();
-                    }
-                    else {
-                        rotate_c2_socials_2();
-                    }
-                }, 7500);
-            }
-
-            function rotate_c2_socials_2() {
-                fade_in("c2_social_2_location");
-                fade_out("c2_social_1_location", function() {});
-                fade_out("c2_social_3_location", function() {});
-                setTimeout( function() {
-                    if (document.getElementById("c2_social_3_value").textContent == "") {
-                        rotate_c2_socials_1();
-                    }
-                    else {
-                        rotate_c2_socials_3();
-                    }
-                }, 7500);
-            }
-
-            function rotate_c2_socials_3() {
-                fade_in("c2_social_3_location");
-                fade_out("c2_social_1_location", function() {});
-                fade_out("c2_social_2_location", function() {});
-                setTimeout( function() { rotate_c2_socials_1(); }, 7500);
-            }
-
-            function get_info() {
-                return new Promise(function(resolve) {
-                    const request = new XMLHttpRequest();
-                    request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info");
-                    request.send();
-
-                    function request_listener () {
-                        resolve(JSON.parse(request.responseText))
-                    }
-                })
-            }
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf")          format("truetype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
             @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
                 height:     1080px;
-                overflow:   hidden;
-                background: transparent;
+                /*background: transparent;*/
                 padding:    0px;
                 margin:     0px;
-                color:      #FFFFFF;
-                font-family:    "Bureau-Grot";
-                text-transform: uppercase;
-                white-space:    nowrap;
-                letter-spacing: 2px;
-
-                --shadow-color: #221F1F;
+                color:      #000000;
+                background: linear-gradient(to top, #FFFFFF, #51CCC1);
             }
 
             .absolute { position: absolute; }
@@ -239,227 +93,50 @@
             .slide { transition: transform 0.5s; transition-timing-function: ease-in-out; }
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
-            .background_image {
-                width: 1920px;  height: 1080px;
-                top: 0px;       left: 0px;
+            .tournament_logo {
+                width: 155px;   height: 128px;
+                bottom: 8px;    left: 896px;
             }
 
-            .logo_image {
-                width: 512px;  height: 256px;
-                top: 128px;      left: 704px;
+            .tournament_logo_back {
+                width: 128px;   height: 128px;
             }
 
-            .tournament_name_location {
-                top: 0px;           left: 16px;
-                width: 1300px;      height: 63px;
-                font-size: 32px;    line-height: 63px;
-                text-align: left;   font-weight: bold;
+            .tournament_logo_lines {
+                width: 155px;   height: 128px;
+                background-image: url("../../img/logos/summit_logo_lines.png");
+                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
+                background-repeat: repeat-x;
             }
-
-            .event_name_location {
-                top: 0px;           right: 16px;
-                width: 620px;       height: 63px;
-                font-size: 32px;    line-height: 63px;
-                text-align: right;  font-weight: bold;
-                opacity: 0;
-            }
-            .event_name_location.fade_out { opacity: 0; }
-            .event_name_location.fade_in { opacity: 1; }
-
-            .tournament_date_location {
-                top: 0px;           right: 16px;
-                width: 620px;       height: 63px;
-                font-size: 32px;    line-height: 63px;
-                text-align: right;  font-weight: bold;
-                opacity: 0;
-            }
-            .tournament_date_location.fade_out { opacity: 0; }
-            .tournament_date_location.fade_in { opacity: 1; }
-
-            .caster_location {
-                top: 706px;         left: 796px;
-                width: 1108px;      text-align: center;
-                opacity: 0;         transform: translate(0px, 10px);
-            }
-            .caster_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
-            .caster_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .caster_image {
-                width: 32px;        height: 32px;
-                padding-right: 5px;
-                filter: drop-shadow(0px 5px 0px var(--shadow-color));
-            }
-
-            .caster_name_value {
-                font-size: 42px;    line-height: 42px;
-                font-family: "Bureau-Grot-Condensed";
-                letter-spacing: 4px;
-                text-shadow: 3px 3px 0px var(--shadow-color);
-            }
-
-            .caster_social_image {
-                width: 24px;        height: 24px;
-                padding-top: 10px;
-                filter: drop-shadow(1px 1px 0px var(--shadow-color));
-            }
-
-            .c1_name_location {
-                top: 694px;         left: 796px;
-                font-size: 60px;    line-height: 72px;
-                text-align: left;   font-family: "Bureau-Grot-Condensed";
-                opacity: 0;         transform: translate(20px, 0px);
-                text-shadow: 5px 5px 0px var(--shadow-color);
-            }
-            .c1_name_location.fade_out { opacity: 0; transform: translate(20px, 0px); }
-            .c1_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .c1_social_location {
-                top: 754px;         left: 796px;
-                font-size: 24px;    line-height: 24px;
-                font-family: "Bureau-Grot-Condensed";
-            }
-
-            .c1_social_1_location { opacity: 0; transform: translate(10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c1_social_1_location.fade_out { opacity: 0; transform: translate(10px, 0px); }
-            .c1_social_1_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-            .c1_social_2_location { opacity: 0; transform: translate(10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c1_social_2_location.fade_out { opacity: 0; transform: translate(10px, 0px); }
-            .c1_social_2_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-            .c1_social_3_location { opacity: 0; transform: translate(10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c1_social_3_location.fade_out { opacity: 0; transform: translate(10px, 0px); }
-            .c1_social_3_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .c2_name_location {
-                top: 694px;         right: 16px;
-                font-size: 60px;    line-height: 72px;
-                text-align: right;  font-family: "Bureau-Grot-Condensed";
-                opacity: 0;         transform: translate(-20px, 0px);
-                text-shadow: -5px 5px 0px var(--shadow-color);
-            }
-            .c2_name_location.fade_out { opacity: 0; transform: translate(-20px, 0px); }
-            .c2_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .c2_social_location {
-                top: 754px;         right: 16px;
-                font-size: 24px;    line-height: 24px;
-                font-family: "Bureau-Grot-Condensed";
-            }
-
-            .c2_social_1_location { opacity: 0; transform: translate(-10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c2_social_1_location.fade_out { opacity: 0; transform: translate(-10px, 0px); }
-            .c2_social_1_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-            .c2_social_2_location { opacity: 0; transform: translate(-10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c2_social_2_location.fade_out { opacity: 0; transform: translate(-10px, 0px); }
-            .c2_social_2_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-            .c2_social_3_location { opacity: 0; transform: translate(-10px, 0px); text-shadow: 1px 1px 0px var(--shadow-color); }
-            .c2_social_3_location.fade_out { opacity: 0; transform: translate(-10px, 0px); }
-            .c2_social_3_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .set_name_location {
-                bottom: 9px;        left: 16px;
-                font-size: 60px;    line-height: 72px;
-                font-weight: bold;  letter-spacing: 5px;
-                text-shadow: 5px 5px 0px var(--shadow-color);
-                opacity: 0;         transform: translate(20px, 0px);
+                font-size: 96px;
+                width: 1920px;  height: 108px;
+                top: 64px;      left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                text-transform: uppercase;
+                text-align: center;
+                letter-spacing: 2px;
+                line-height: 108px;
+                opacity: 0;
+                color: #FFFFFF;
+                transform: translate(0px, 10px);
+                background-color: rgba(0, 0, 0, 0.75);
             }
-            .set_name_location.fade_out { opacity: 0; transform: translate(20px, 0px); }
+            .set_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
-            .upcoming_set_name_location {
-                bottom: 9px;        left: 16px;
-                font-size: 72px;    line-height: 84px;
-                font-family: "Bureau-Grot-Condensed";
-                text-shadow: 5px 5px 0px var(--shadow-color);
-                opacity: 0;         transform: translate(20px, 0px);
-            }
-            .upcoming_set_name_location.fade_out { opacity: 0; transform: translate(20px, 0px); }
-            .upcoming_set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .p_name_location {
-                top: 930px;         left: 16px;
-                font-size: 60px;    line-height: 72px;
-                text-align: left;   font-family: "Bureau-Grot-Condensed";
-                opacity: 0;         transform: translate(20px, 0px);
-                text-shadow: 5px 5px 0px var(--shadow-color);
-            }
-            .p_name_location.fade_out { opacity: 0; transform: translate(20px, 0px); }
-            .p_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .background_lines {
-                position: absolute;
-                width: 1920px;
-                height: 1080px;
-                top: 0px;
-                left: 0px;
-                background-image: url("../../img/background_lines.png");
-                background-repeat: repeat-x;
-                opacity: 0.3;
-            }
-
-            .hehe_location {
-                bottom: 4px;        left: 8px;
-                font-size: 14px;    line-height: 18px;
-                text-align: left;   text-transform: none;
-            }
         </style>
     </head>
     <body>
-        <img        id = "background_image"         class = "absolute background_image" src = "../../img/background_break.png">
-        <img        id = "bg_lines"                 class = "background_lines"></div>
-        <img        id = "logo_1_image"             class = "absolute logo_image"       src = "../../img/logos/logo_1_image.png">
-        <div        id = "tournament_name_location" class = "absolute tournament_name_location">
-            <span   id = "tournament_name_value"    class = "tournament_name_value"></span>
+        <div            id = "tournament_logo"          class = "absolute tournament_logo">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/summit_logo_back.png">
+            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
         </div>
-        <div        id = "tournament_date_location" class = "absolute fade tournament_date_location">
-            <span   id = "tournament_date_value"    class = "tournament_date_value"></span>
-        </div>
-        <div        id = "event_name_location"      class = "absolute fade event_name_location">
-            <span   id = "event_name_value"         class = "event_name_value"></span>
-        </div>
-        <div        id = "set_name_location"        class = "absolute fade_slide set_name_location">
-            <span   id = "set_name_value"           class = "set_name_value"></span>
-        </div>
-        <div        id = "upcoming_set_name_location"        class = "absolute fade_slide upcoming_set_name_location">
-            <span   id = "upcoming_set_name_value"           class = "upcoming_set_name_value"></span>
-        </div>
-        <div        id = "caster_location"          class = "absolute fade_slide caster_location">
-            <img    id = "caster_image"             class = "caster_image" src = "../../img/elements\mic.png">
-            <span   id = "caster_name_value"        class = "caster_name_value">on the mic</span>
-        </div>
-        <span       id = "c1_id_value"              class = "c1_id_value"></span>
-        <div        id = "c1_name_location"         class = "absolute fade_slide c1_name_location">
-            <span   id = "c1_name_value"            class = "c1_name_value"></span>
-        </div>
-        <div        id = "c1_social_1_location"     class = "absolute fade_slide c1_social_location c1_social_1_location">
-            <img    id = "c1_social_1_image"        class = "caster_social_image c1_social_1_image">
-            <span   id = "c1_social_1_value"        class = "c1_social_1_value"></span>
-        </div>
-        <div        id = "c1_social_2_location"     class = "absolute fade_slide c1_social_location c1_social_2_location">
-            <img    id = "c1_social_2_image"        class = "caster_social_image c1_social_2_image">
-            <span   id = "c1_social_2_value"        class = "c1_social_2_value"></span>
-        </div>
-        <div        id = "c1_social_3_location"     class = "absolute fade_slide c1_social_location c1_social_3_location">
-            <img    id = "c1_social_3_image"        class = "caster_social_image c1_social_3_image">
-            <span   id = "c1_social_3_value"        class = "c1_social_3_value"></span>
-        </div>
-        <span       id = "c2_id_value"              class = "c2_id_value"></span>
-        <div        id = "c2_name_location"         class = "absolute fade_slide c2_name_location">
-            <span   id = "c2_name_value"            class = "c2_name_value"></span>
-        </div>
-        <div        id = "c2_social_1_location"     class = "absolute fade_slide c2_social_location c2_social_1_location">
-            <img    id = "c2_social_1_image"        class = "caster_social_image c2_social_1_image">
-            <span   id = "c2_social_1_value"        class = "c2_social_1_value"></span>
-        </div>
-        <div        id = "c2_social_2_location"     class = "absolute fade_slide c2_social_location c2_social_2_location">
-            <img    id = "c2_social_2_image"        class = "caster_social_image c2_social_2_image">
-            <span   id = "c2_social_2_value"        class = "c2_social_2_value"></span>
-        </div>
-        <div        id = "c2_social_3_location"     class = "absolute fade_slide c2_social_location c2_social_3_location">
-            <img    id = "c2_social_3_image"        class = "caster_social_image c2_social_3_image">
-            <span   id = "c2_social_3_value"        class = "c2_social_3_value"></span>
-        </div>
-        <div        id = "hehe_location"            class = "absolute hehe_location">
-            <span   id = "hehe_value"               class = "hehe_value">We live in your walls.</span>
+        <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
+            <span       id = "set_name_value"           class = "set_name_value">STARTING SOON</span>
+            <!-- We'll be right back -->
+            <!-- Starting soon -->
         </div>
     </body>
 </html>

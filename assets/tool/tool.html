@@ -19,7 +19,7 @@
 
             let ip = window.location.href.replace("http://", "");
             ip = ip.replace("/tool/","");
-            const obs = new OBSWebSocket();
+            //const obs = new OBSWebSocket();
             let tournament = {};
             let tournament_info = {};
 
@@ -57,10 +57,12 @@
 
                 tournament = await get_file("http://" + ip + "/tournament");
                 tournament_info = await get_file("http://" + ip + "/info");
+                scenes = await get_file("http://" + ip + "/scenes")
 
                 if (DEBUG) {
                     console.log(tournament);
                     console.log(tournament_info);
+                    console.log(scenes);
                 }
 
                 document.getElementById("tournament_name").value = tournament_info["name"];
@@ -102,29 +104,16 @@
                 }
                 set_update();
                 upcoming_set_update();
-                try {
-                    obs.connect({ address: ip.replace("8000", "4444") });
 
-                    obs.on('ConnectionOpened', () => {
-                        obs.send('GetSceneList').then(data => {
-                            const sceneListDiv = document.getElementById('scene_list');
-
-                            data.scenes.forEach(scene => {
-                                const sceneElement = document.createElement('button');
-                                sceneElement.textContent = scene.name;
-                                sceneElement.onclick = function() {
-                                    obs.send('SetCurrentScene', { 'scene-name': scene.name });
-                                };
-                                sceneListDiv.appendChild(sceneElement);
-                            });
-                        })
-                    });
-                } catch(err) {
-                    console.log("OBS instance at " + ip.replace("8000", "4444") + " not found. Scene switcher will not be available until page is refreshed with an instance of OBS active.");
-                }
+                const sceneListDiv = document.getElementById('scene_list');
+                var str = "";
+                scenes.forEach(async function(scene, i) {
+                    str += "<div class=\"scenes_list\" id=\"scenes_list_div_" + i + "\"><input type=\"radio\" id=\"scene_" + i + "\"   name=\"scene_list\"   value=\"" + scene + "\" checked><label for=\"scene_" + i + "\" style=\"border-left: 0px; border-right: 0px;\"><h4>" + scene + "</h4></label></div>";
+                });
+                sceneListDiv.innerHTML = str;
 
                 var event_name = document.getElementById("event_name");
-                var str = "";
+                str = "";
                 tournament["events"].forEach(async function(item, i) {
                     str += '<option name="' + item["name"] + '" value="' + item["name"] + '" data-id="' + item["name"] + '">' + '</option>';
                 });
@@ -235,12 +224,12 @@
             }
 
             async function swap_casters() {
-                const c1_user = document.getElementById("c1_user").value;
-                const c2_user = document.getElementById("c2_user").value;
-                document.getElementById("c1_user").value = c2_user;
-                document.getElementById("c2_user").value = c1_user;
-                c1_user_update();
-                c2_user_update();
+                //const c1_user = document.getElementById("c1_user").value;
+                //const c2_user = document.getElementById("c2_user").value;
+                //document.getElementById("c1_user").value = c2_user;
+                //document.getElementById("c2_user").value = c1_user;
+                //c1_user_update();
+                //c2_user_update();
             }
 
             async function set_update() {
@@ -329,7 +318,7 @@
                     }
                 }
                 else {
-                    document.getElementById("c1_name").value = "";
+                    document.getElementById("c1_name").value = document.getElementById("c2_name").value;
                     document.getElementById("c1_socials[1][externalUsername]").value = "";
                     document.getElementById("c1_socials[1][type]").value = "";
                     document.getElementById("c1_socials[2][externalUsername]").value = "";
@@ -371,7 +360,7 @@
                     }
                 }
                 else {
-                    document.getElementById("c2_name").value = "";
+                    document.getElementById("c2_name").value = document.getElementById("c2_name").value;
                     document.getElementById("c2_socials[1][externalUsername]").value = "";
                     document.getElementById("c2_socials[1][type]").value = "";
                     document.getElementById("c2_socials[2][externalUsername]").value = "";
@@ -380,9 +369,9 @@
                     document.getElementById("c2_socials[3][type]").value = "";
                 }
                 if (DEBUG) {
-                    console.log(document.getElementById("c1_socials[1][externalUsername]").value + " - " + document.getElementById("c1_socials[1][type]").value);
-                    console.log(document.getElementById("c1_socials[2][externalUsername]").value + " - " + document.getElementById("c1_socials[2][type]").value);
-                    console.log(document.getElementById("c1_socials[3][externalUsername]").value + " - " + document.getElementById("c1_socials[3][type]").value);
+                    console.log(document.getElementById("c2_socials[1][externalUsername]").value + " - " + document.getElementById("c2_socials[1][type]").value);
+                    console.log(document.getElementById("c2_socials[2][externalUsername]").value + " - " + document.getElementById("c2_socials[2][type]").value);
+                    console.log(document.getElementById("c2_socials[3][externalUsername]").value + " - " + document.getElementById("c2_socials[3][type]").value);
                 }
             }
         </script>
@@ -414,6 +403,14 @@
                 font-size: 16px; line-height: 32px;
                 text-shadow: 0px 0px 0px;
                 font-weight: 100;
+            }
+            h4 {
+                margin: 0; padding: 8px;
+                height: 32px;
+                font-size: 16px; line-height: 32px;
+                text-shadow: 0px 0px 0px;
+                font-weight: 100;
+                border: 1px solid #888888;
             }
 
             legend {

@@ -4,6 +4,9 @@ const express = require("express");     // server utilities
 const ip =      require("ip");          // ip stuff
 const fs = require('fs');               // read token
 const { GraphQLClient } = require('graphql-request');
+const OBSWebSocket = require('obs-websocket-js'); // obs websocket
+
+const obs = new OBSWebSocket();
 
 // global variables
 const PORT = 8000;          // port of the server, don't change unless you know what you are doing
@@ -35,6 +38,9 @@ var tournament_info = {
     "participants": [],     // participants. this is an array of dictionaries, with each dictionary representing a player with their name, tag, internal id, and social media
     "events": []            // list of events with the participants of each event. participants are just a list of ids
 };
+
+var scenes = [];
+var current_scene = "";
 
 async function get_tournament(tournament_slug) {
     const query = `
@@ -155,6 +161,38 @@ function parse_tournament_data(tournament) {
 
 // get user?
 
+async function connect_obs() {
+    try {
+        obs.connect();
+    
+        obs.on('ConnectionOpened', () => {
+            obs.send('GetSceneList').then(data => {
+                scenes = [];
+                data.scenes.forEach(scene => {
+                    scenes.push(scene.name);
+                });
+                current_scene = data.current_scene;
+            })
+        });
+    } catch(err) {
+        console.log("OBS instance at localhost:4444 not found. Scene switcher will not be available until server is refreshed with an instance of OBS active.\n");
+    }
+}
+
+async function init() {
+    await connect_obs();
+    
+    // start server
+    app.listen(PORT, () => {
+        console.log("Listening at localhost:" + PORT + "...\n");
+        console.log("Stream Tool:           http://" + ip.address() + ":" + PORT + "/tool/");
+        console.log("Alternate Stream Tool: http://" + ip.address() + ":" + PORT + "/tool/alt/\n");
+        console.log("Game Overlay:          " + process.cwd() + "\\assets\\overlays\\game\\index.html");
+        console.log("Transition:            " + process.cwd() + "\\assets\\overlays\\transition\\index.html");
+        console.log("Break:                 " + process.cwd() + "\\assets\\overlays\\break\\index.html");
+    });
+}
+
 // setup server
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -167,6 +205,9 @@ app.get("/info", function(request, response) {
 app.get("/tournament", function(request, response) {
     response.send(tournament_info);
 });
+app.get("/scenes", function(request, response) {
+    response.send(scenes);
+});
 app.get("/tool", function(request, response) {
     response.sendFile("/assets/tool/tool.html", { root: process.cwd() });
 });
@@ -177,18 +218,11 @@ app.get("/tool/alt", function(request, response) {
 // post
 app.post("/", function(request, response) {
     tournament = request.body;  // update tournament info with what is given from the tool
+    obs.send('SetCurrentScene', { 'scene-name': request.body.scene_list });
 });
 app.post("/tournament", function(request, response) {
     console.log(request.body);
     get_tournament(request.body.tournament_slug);  // update tournament info with what is given from the tool
 });
 
-// start server
-app.listen(PORT, () => {
-    console.log("Listening at localhost:" + PORT + "...\n");
-    console.log("Stream Tool:           http://" + ip.address() + ":" + PORT + "/tool/");
-    console.log("Alternate Stream Tool: http://" + ip.address() + ":" + PORT + "/tool/alt/\n");
-    console.log("Game Overlay:          " + process.cwd() + "\\assets\\overlays\\game\\index.html");
-    console.log("Transition:            " + process.cwd() + "\\assets\\overlays\\transition\\index.html");
-    console.log("Break:                 " + process.cwd() + "\\assets\\overlays\\break\\index.html");
-});
+init();

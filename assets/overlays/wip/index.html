@@ -54,6 +54,8 @@
                 let p2_name = game["p2_name"];
                 let p1_score = game["p1_score"];
                 let p2_score = game["p2_score"];
+                let set_name = game["set_name"];
+                let event_name = game["event_name"];
 
                 if (startup) {
                     setTimeout(() => {
@@ -62,11 +64,15 @@
                         document.getElementById("p2_name_value").textContent = p2_name;
                         document.getElementById("p1_score_value").textContent = p1_score;
                         document.getElementById("p2_score_value").textContent = p2_score;
+                        document.getElementById("event_name_value").textContent = set_name;
+                        document.getElementById("set_name_value").textContent = event_name;
 
                         fade_in("p1_name_location");
                         fade_in("p2_name_location");
                         fade_in("p1_score_location");
                         fade_in("p2_score_location");
+                        fade_in("set_name_location");
+                        fade_in("event_name_location");
 
                         startup = false;
 
@@ -77,6 +83,8 @@
                     update_value("p2_name", p2_name);
                     update_value("p1_score", p1_score);
                     update_value("p2_score", p2_score);
+                    update_value("event_name", set_name);
+                    update_value("set_name", event_name);
                 }
                 return;
             }
@@ -103,7 +111,7 @@
                 background: transparent;
                 padding:    0px;
                 margin:     0px;
-                color:      #FFFFFF;
+                color:      #000000;
             }
 
             .absolute { position: absolute; }
@@ -113,7 +121,7 @@
 
             .tournament_logo {
                 width: 155px;   height: 128px;
-                bottom: 56px;   left: 896px;
+                bottom: 58px;    left: 896px;
                 opacity: 0.5;
             }
 
@@ -129,38 +137,66 @@
             }
 
             .set_panel {
-                width: 308px;   height: 48px;
-                bottom: 0px;    left: 806px;
+                width: 450px;   height: 56px;
+                top: 0px;       left: 735px;
                 z-index: -1;
-                -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+                opacity: 0.5;
             }
 
             .set_name_location {
-                font-size: 28px;
+                font-size: 42px;
                 width: 1920px;  height: 32px;
-                bottom: 0px;    left: 0px;
+                top: 8px;       left: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 text-transform: uppercase;
                 text-align: center;
                 letter-spacing: 2px;
                 line-height: 32px;
+                opacity: 0;
+                transform: translate(0px, -10px);
             }
+            .set_name_location.fade_out { opacity: 0; transform: translate(0px, -10px); }
+            .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .event_panel {
+                width: 450px;   height: 56px;
+                bottom: 0px;       left: 735px;
+                z-index: -1;
+                opacity: 0.5;
+            }
+
+            .event_name_location {
+                font-size: 42px;
+                width: 1920px;  height: 32px;
+                bottom: 8px;    left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                text-transform: uppercase;
+                text-align: center;
+                letter-spacing: 2px;
+                line-height: 32px;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .event_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .event_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .p1_hud_location {
                 bottom: 0px;    left: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #CC5050;
+                border: solid 8px #C75050;
             }
 
             .p1_name_location {
-                font-size: 24px;
+                font-size: 32px;
                 width: 216px;
                 bottom: 0px;        left: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px;       text-transform: uppercase;
                 text-align: left;
                 background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
                 opacity: 0;
+                transform: translate(0px, 10px);
             }
             .p1_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .p1_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
@@ -171,15 +207,14 @@
             }
 
             .p1_score_location {
-                font-size: 24px;
+                font-size: 32px;
                 bottom: 0px;        right: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
                 background-color: #FFFFFF;
-                color: #000000;
-                text-align: right;
                 opacity: 0;
+                transform: translate(0px, 10px);
             }
             .p1_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .p1_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
@@ -187,18 +222,20 @@
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #CC5050;
+                border: solid 8px #C75050;
             }
 
             .p2_name_location {
-                font-size: 24px;
+                font-size: 32px;
                 width: 216px;
                 bottom: 0px;    right: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px;   text-transform: uppercase;
                 text-align: right;
                 background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
                 opacity: 0;
+                transform: translate(0px, 10px);
             }
             .p2_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .p2_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
@@ -209,15 +246,15 @@
             }
 
             .p2_score_location {
-                font-size: 24px;
+                font-size: 32px;
                 bottom: 0px;        left: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
                 background-color: #FFFFFF;
-                color: #000000;
                 text-align: left;
                 opacity: 0;
+                transform: translate(0px, 10px);
             }
             .p2_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .p2_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
@@ -231,26 +268,32 @@
         </div>
         <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
-            <span       id = "set_name_value"           class = "set_name_value">Grand Finals</span>
+            <span       id = "set_name_value"           class = "set_name_value"></span>
+        </div>
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower.png">
+        <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
+            <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>
         <div            id = "p1_hud_location"          class = "absolute p1_hud_location">
+            <span       id = "p1_id_value"              class = "p1_id_value"></span>
             <div        id = "p1_name_location"         class = "absolute fade_slide p1_name_location">
                 <div    id = "p1_name_value_container"  class = "p1_name_value">
-                    <span   id = "p1_name_value"            class = "p1_name_value">Player 1 [w]</span>
+                    <span   id = "p1_name_value"            class = "p1_name_value"></span>
                 </div>
             </div>
             <div        id = "p1_score_location"        class = "absolute fade_slide p1_score_location">
-                <span   id = "p1_score_value"           class = "p1_score_value">0</span>
+                <span   id = "p1_score_value"           class = "p1_score_value"></span>
             </div>
         </div>
         <div            id = "p2_hud_location"          class = "absolute p2_hud_location">
+            <span       id = "p2_id_value"              class = "p2_id_value"></span>
             <div        id = "p2_name_location"         class = "absolute fade_slide p2_name_location">
                 <div    id = "p2_name_value_container"  class = "p2_name_value_container">
-                    <span   id = "p2_name_value"            class = "p2_name_value">[l] Player 2</span>
+                    <span   id = "p2_name_value"            class = "p2_name_value"></span>
                 </div>
             </div>
             <div        id = "p2_score_location"        class = "absolute fade_slide p2_score_location">
-                <span   id = "p2_score_value"           class = "p2_score_value">2</span>
+                <span   id = "p2_score_value"           class = "p2_score_value"></span>
             </div>
         </div>
     </body>

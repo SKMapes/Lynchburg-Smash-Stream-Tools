@@ -40,7 +40,8 @@ var tournament_info = {
 };
 
 var scenes = [];
-var current_scene = "";
+var current_scene = "Break";
+var transition = "";
 
 async function get_tournament(tournament_slug) {
     const query = `
@@ -171,7 +172,6 @@ async function connect_obs() {
                 data.scenes.forEach(scene => {
                     scenes.push(scene.name);
                 });
-                current_scene = data.current_scene;
             })
         });
     } catch(err) {
@@ -211,14 +211,22 @@ app.get("/scenes", function(request, response) {
 app.get("/tool", function(request, response) {
     response.sendFile("/assets/tool/tool.html", { root: process.cwd() });
 });
-app.get("/tool/alt", function(request, response) {
-    response.sendFile("/assets/tool/offline_tool.html", { root: process.cwd() });
-});
 
 // post
 app.post("/", function(request, response) {
     tournament = request.body;  // update tournament info with what is given from the tool
-    obs.send('SetCurrentScene', { 'scene-name': request.body.scene_list });
+    fs.writeFile("./assets/overlays/game_info.json", JSON.stringify(tournament), function (err) {
+        if (err) return console.log(err);
+    });
+    transition = "Stinger";
+    if ((current_scene == "Game" || current_scene == "Game (Swap Cameras)") && (request.body.scene_list == "Game" || request.body.scene_list == "Game (Swap Cameras)")) {
+        transition = "Fade";
+    }
+    console.log("request.body.scene_list = " + request.body.scene_list);
+    console.log("current_scene = " + current_scene);
+    //obs.send('SetCurrentSceneTransition',   { 'transition': transition });
+    obs.send('SetCurrentScene',             { 'scene-name': request.body.scene_list });
+    current_scene = request.body.scene_list;
 });
 app.post("/tournament", function(request, response) {
     console.log(request.body);

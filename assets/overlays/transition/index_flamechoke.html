@@ -20,8 +20,7 @@
                 }, 500);
                 setInterval( () => {
                     document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    document.getElementById("tournament_generic_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    bg_lines -= 0.25;
+                    bg_lines -= 0.125;
                 }, 15);
             }
 
@@ -29,7 +28,7 @@
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info/");
+                    request.open("GET", "./../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -51,14 +50,29 @@
             
             function parse_data(game) {
 
+                var str = "";
+                if (game["p1_name"] != "" && game["p2_name"] != "") {
+                    str = " VS ";
+                }
+                let p_name = game["p1_name"] + str + game["p2_name"];
+                let set_name = game["set_name"];
+
                 if (startup) {
                     setTimeout(() => {
 
+                        document.getElementById("p_name_value").textContent = p_name;
+                        document.getElementById("set_name_value").textContent = set_name;
+
+                        fade_in("p_name_location");
                         fade_in("set_name_location");
 
                         startup = false;
 
                     }, 500);
+                }
+                else {
+                    update_value("p_name", p_name);
+                    update_value("set_name", set_name);
                 }
                 return;
             }
@@ -82,11 +96,10 @@
             body {
                 width:      1920px;
                 height:     1080px;
-                /*background: transparent;*/
+                background: transparent;
                 padding:    0px;
                 margin:     0px;
                 color:      #000000;
-                background: linear-gradient(to bottom, #e35252, #e35252);
             }
 
             .absolute { position: absolute; }
@@ -95,67 +108,80 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 256px;   height: 256px;
-                top: 32px;      left: 384px;
+                width: 125px;   height: 125px;
+                bottom: 58px;    left: 896px;
             }
 
             .tournament_logo_back {
-                width: 256px;   height: 256px;
+                width: 125px;   height: 125px;
             }
 
             .tournament_logo_lines {
-                width: 256px;   height: 256px;
+                width: 125px;   height: 125px;
                 background-image: url("../../img/logos/LynchburgLogoCity.png");
                 -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
                 background-repeat: repeat-x;
-                background-size: 256px 256px;
+                background-size: 125px 125px;
             }
 
-            .tournament_lines {
-                width: 1024px;  height: 256px;
-                top: 48px;      left: 0px;
-            }
-
-            .tournament_generic_lines {
-                width: 1024px;   height: 256px;
-                background-image: url("../../img/logos/LynchburgLogoBars.png");
-                -webkit-mask-image: url("../../img/logos/tournament_lines_mask.png");
-                background-repeat: repeat-x;
-                background-size: 460px 256px;
+            .set_panel {
+                width: 450px;   height: 56px;
+                top: 0px;       left: 735px;
+                z-index: -1;
             }
 
             .set_name_location {
-                font-size: 96px;
-                width: 1920px;  height: 108px;
-                top: 64px;      left: 0px;
+                font-size: 42px;
+                width: 1920px;  height: 32px;
+                top: 8px;       left: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 text-transform: uppercase;
                 text-align: center;
                 letter-spacing: 2px;
-                line-height: 108px;
-                opacity: 0;
+                line-height: 32px;
                 color: #FFFFFF;
-                transform: translate(0px, 10px);
-                background-color: rgba(0, 0, 0, 0.75);
+                opacity: 0;
+                transform: translate(0px, -10px);
             }
-            .set_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .set_name_location.fade_out { opacity: 0; transform: translate(0px, -10px); }
             .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .p_name_location {
+                font-size: 48px;
+                bottom: 0px;    left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;       text-transform: uppercase;
+                text-align: left;
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+                border: solid 8px #E35252;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .p_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .game_box_location {
+                width: 448px;   height: 252px;
+                bottom: 0px;    right: 0px;
+                border: solid 8px #E35252;
+            }
 
         </style>
     </head>
     <body>
-        <div            id = "tournament_lines"         class = "absolute tournament_lines">
-            <div        id = "tournament_generic_lines" class = "absolute tournament_generic_lines"></div>
-        </div>
-        <div style="background-color: #222222; position: absolute; top: 275px; width: 1024px; height: 256px;"></div>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/LynchburgLogoMask.png">
             <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../img/logos/LynchburgLogoMain.svg" type = "image/svg+xml"></object>
             <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
         </div>
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
-            <span       id = "set_name_value"           class = "set_name_value">Thanks for watching</span>
-            <!-- We'll be right back -->
-            <!-- Starting soon -->
+            <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
+        <div            id = "p_name_location"          class = "absolute fade_slide p_name_location">
+            <span       id = "p_name_value"             class = "p_name_value"></span>
+        </div>
+        <div            id = "game_box_location"        class = "absolute game_box_location"></div>
     </body>
 </html>

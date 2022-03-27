@@ -18,10 +18,6 @@
                 setInterval( () => {
                     main();
                 }, 500);
-                setInterval( () => {
-                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    bg_lines -= 0.125;
-                }, 15);
             }
 
             function get_info(file) {
@@ -50,11 +46,18 @@
             
             function parse_data(game) {
 
+                let set_name = game["set_name"];
+
                 let p1_name = game["p1_name"];
                 let p2_name = game["p2_name"];
+
+                if (set_name == "Grand Finals" || set_name == "Grand Finals Reset") {
+                    p1_name += " [" + game["p1_bracket"] + "]";
+                    p2_name = "[" + game["p2_bracket"] + "] " + p2_name;
+                }
+
                 let p1_score = game["p1_score"];
                 let p2_score = game["p2_score"];
-                let set_name = game["set_name"];
                 let event_name = game["event_name"];
 
                 if (startup) {
@@ -111,7 +114,7 @@
                 background: transparent;
                 padding:    0px;
                 margin:     0px;
-                color:      #000000;
+                color:      #FFFFFF;
             }
 
             .absolute { position: absolute; }
@@ -120,20 +123,13 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 155px;   height: 128px;
-                bottom: 58px;    left: 896px;
+                width: 156px;   height: 128px;
+                bottom: 84px;    left: 911px;
                 opacity: 0.5;
             }
 
             .tournament_logo_back {
-                width: 128px;   height: 128px;
-            }
-
-            .tournament_logo_lines {
-                width: 155px;   height: 128px;
-                background-image: url("../../img/logos/tournament_logo_lines.png");
-                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
-                background-repeat: repeat-x;
+                width: 100px;
             }
 
             .set_panel {
@@ -183,7 +179,7 @@
             .p1_hud_location {
                 bottom: 0px;    left: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #C75050;
+                border: solid 8px #FCD006;
             }
 
             .p1_name_location {
@@ -212,6 +208,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 opacity: 0;
                 transform: translate(0px, 10px);
@@ -222,7 +219,7 @@
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #C75050;
+                border: solid 8px #FCD006;
             }
 
             .p2_name_location {
@@ -251,6 +248,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 text-align: left;
                 opacity: 0;
@@ -263,14 +261,13 @@
     </head>
     <body>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/tournament_logo_back.png">
-            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/2022_ESPORTS_Monogram_Outline_Yellow.png">
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel.png">
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_randolph.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
-        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower.png">
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower_randolph.png">
         <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
             <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>

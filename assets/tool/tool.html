@@ -49,9 +49,9 @@
                 document.getElementById("c2_name").addEventListener("change", c2_user_update);
                 
                 document.getElementById("swap_players").addEventListener("click", swap_players);
-                document.getElementById("swap_upcoming_players").addEventListener("click", swap_upcoming_players);
-                document.getElementById("swap_casters").addEventListener("click", swap_casters);
-                document.getElementById("move_up_upcoming").addEventListener("click", move_up_upcoming);
+                //document.getElementById("swap_upcoming_players").addEventListener("click", swap_upcoming_players);
+                //document.getElementById("swap_casters").addEventListener("click", swap_casters);
+                //document.getElementById("move_up_upcoming").addEventListener("click", move_up_upcoming);
 
                 document.getElementById("tournament_selected").addEventListener("click", tournament_selected);
 
@@ -215,12 +215,36 @@
             }
 
             async function swap_players() {
-                const p1_user = document.getElementById("p1_user").value;
-                const p2_user = document.getElementById("p2_user").value;
-                document.getElementById("p1_user").value = p2_user;
-                document.getElementById("p2_user").value = p1_user;
-                p1_user_update();
-                p2_user_update();
+                const p1_user = document.getElementById("p1_name").value;
+                p1_bracket = "L";
+                if (document.getElementById("p1_bracket_1").checked) {
+                    p1_bracket = document.getElementById("p1_bracket_1").value;
+                }
+                else if (document.getElementById("p1_bracket_2").checked) {
+                    p1_bracket = document.getElementById("p1_bracket_2").value;
+                }
+                const p2_user = document.getElementById("p2_name").value;
+                p2_bracket = "L";
+                if (document.getElementById("p2_bracket_1").checked) {
+                    p2_bracket = document.getElementById("p2_bracket_1").value;
+                }
+                else if (document.getElementById("p2_bracket_2").checked) {
+                    p2_bracket = document.getElementById("p2_bracket_2").value;
+                }
+                document.getElementById("p1_name").value = p2_user;
+                document.getElementById("p2_name").value = p1_user;
+                if (p1_bracket == "W") {
+                    document.getElementById("p2_bracket_1").checked = true;
+                }
+                else {
+                    document.getElementById("p2_bracket_2").checked = true;
+                }
+                if (p2_bracket == "W") {
+                    document.getElementById("p1_bracket_1").checked = true;
+                }
+                else {
+                    document.getElementById("p1_bracket_2").checked = true;
+                }
             }
 
             async function swap_casters() {
@@ -318,7 +342,7 @@
                     }
                 }
                 else {
-                    document.getElementById("c1_name").value = document.getElementById("c2_name").value;
+                    document.getElementById("c1_name").value = document.getElementById("c1_name").value;
                     document.getElementById("c1_socials[1][externalUsername]").value = "";
                     document.getElementById("c1_socials[1][type]").value = "";
                     document.getElementById("c1_socials[2][externalUsername]").value = "";
@@ -327,9 +351,9 @@
                     document.getElementById("c1_socials[3][type]").value = "";
                 }
                 if (DEBUG) {
-                    console.log(document.getElementById("c2_socials[1][externalUsername]").value + " - " + document.getElementById("c2_socials[1][type]").value);
-                    console.log(document.getElementById("c2_socials[2][externalUsername]").value + " - " + document.getElementById("c2_socials[2][type]").value);
-                    console.log(document.getElementById("c2_socials[3][externalUsername]").value + " - " + document.getElementById("c2_socials[3][type]").value);
+                    console.log(document.getElementById("c1_socials[1][externalUsername]").value + " - " + document.getElementById("c1_socials[1][type]").value);
+                    console.log(document.getElementById("c1_socials[2][externalUsername]").value + " - " + document.getElementById("c1_socials[2][type]").value);
+                    console.log(document.getElementById("c1_socials[3][externalUsername]").value + " - " + document.getElementById("c1_socials[3][type]").value);
                 }
             }
 
@@ -524,13 +548,13 @@
                         <input  type="number"   id="p1_score"       name="p1_score"     value="0">
                         <button type="button"   id="p1_score_+"     class="right_button">+</button>
                         <div class="p1_bracket" id="p1_bracket_div_1">
-                            <input type="radio" id="p1_bracket_1"   name="p1_bracket"   value="Winners" checked>
+                            <input type="radio" id="p1_bracket_1"   name="p1_bracket"   value="W">
                             <label for="p1_bracket_1" style="border-left: 0px; border-right: 0px;">
                                 <h3>[W]</h3>
                             </label>
                         </div>
                         <div class="p1_bracket" id="p1_bracket_div_2">
-                            <input type="radio" id="p1_bracket_2" name="p1_bracket" value="Losers">
+                            <input type="radio" id="p1_bracket_2" name="p1_bracket" value="L">
                             <label for="p1_bracket_2">
                                 <h3>[L]</h3>
                             </label>
@@ -553,13 +577,13 @@
                             </datalist>
                         </div>
                         <div class="p2_bracket" id="p2_bracket_div_1">
-                            <input type="radio" id="p2_bracket_1" name="p2_bracket" value="Winners" checked>
+                            <input type="radio" id="p2_bracket_1" name="p2_bracket" value="W">
                             <label for="p2_bracket_1">
                                 <h3>[W]</h3>
                             </label>
                         </div>
                         <div class="p2_bracket" id="p2_bracket_div_2">
-                            <input type="radio" id="p2_bracket_2" name="p2_bracket" value="Losers">
+                            <input type="radio" id="p2_bracket_2" name="p2_bracket" value="L" check>
                             <label for="p2_bracket_2" style="border-left: 0px; border-right: 0px;">
                                 <h3>[L]</h3>
                             </label>

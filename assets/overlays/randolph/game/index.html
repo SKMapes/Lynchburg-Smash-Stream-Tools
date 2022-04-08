@@ -17,18 +17,14 @@
                 main();
                 setInterval( () => {
                     main();
-                }, 1000);
-                setInterval( () => {
-                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    bg_lines -= 0.125;
-                }, 15);
+                }, 500);
             }
 
             function get_info(file) {
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "./../game_info.json");
+                    request.open("GET", "./../../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -50,11 +46,18 @@
             
             function parse_data(game) {
 
+                let set_name = game["set_name"];
+
                 let p1_name = game["p1_name"];
                 let p2_name = game["p2_name"];
+
+                if (set_name == "Grand Finals" || set_name == "Grand Finals Reset") {
+                    p1_name += " [" + game["p1_bracket"] + "]";
+                    p2_name = "[" + game["p2_bracket"] + "] " + p2_name;
+                }
+
                 let p1_score = game["p1_score"];
                 let p2_score = game["p2_score"];
-                let set_name = game["set_name"];
                 let event_name = game["event_name"];
 
                 if (startup) {
@@ -102,8 +105,8 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
@@ -111,7 +114,7 @@
                 background: transparent;
                 padding:    0px;
                 margin:     0px;
-                color:      #000000;
+                color:      #FFFFFF;
             }
 
             .absolute { position: absolute; }
@@ -120,21 +123,13 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 125px;   height: 125px;
-                bottom: 58px;    left: 896px;
+                width: 156px;   height: 128px;
+                bottom: 84px;    left: 911px;
                 opacity: 0.5;
             }
 
             .tournament_logo_back {
-                width: 125px;   height: 125px;
-            }
-
-            .tournament_logo_lines {
-                width: 125px;   height: 125px;
-                background-image: url("../../img/logos/LynchburgLogoCity.png");
-                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
-                background-repeat: repeat-x;
-                background-size: 125px 125px;
+                width: 100px;
             }
 
             .set_panel {
@@ -153,7 +148,6 @@
                 text-align: center;
                 letter-spacing: 2px;
                 line-height: 32px;
-                color: #FFFFFF;
                 opacity: 0;
                 transform: translate(0px, -10px);
             }
@@ -176,7 +170,6 @@
                 text-align: center;
                 letter-spacing: 2px;
                 line-height: 32px;
-                color: #FFFFFF;
                 opacity: 0;
                 transform: translate(0px, 10px);
             }
@@ -186,7 +179,7 @@
             .p1_hud_location {
                 bottom: 0px;    left: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #E35252;
+                border: solid 8px #FCD006;
             }
 
             .p1_name_location {
@@ -215,6 +208,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 opacity: 0;
                 transform: translate(0px, 10px);
@@ -225,7 +219,7 @@
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #E35252;
+                border: solid 8px #FCD006;
             }
 
             .p2_name_location {
@@ -254,6 +248,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 text-align: left;
                 opacity: 0;
@@ -266,15 +261,13 @@
     </head>
     <body>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/LynchburgLogoMask.png">
-            <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../img/logos/LynchburgLogoMain.svg" type = "image/svg+xml"></object>
-            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/2022_ESPORTS_Monogram_Outline_Yellow.png">
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel.png">
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../../img/elements/set_panel_randolph.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
-        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower.png">
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../../img/elements/set_panel_lower_randolph.png">
         <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
             <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>

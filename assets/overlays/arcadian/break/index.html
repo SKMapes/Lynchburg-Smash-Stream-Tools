@@ -20,7 +20,8 @@
                 }, 500);
                 setInterval( () => {
                     document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    bg_lines -= 0.125;
+                    document.getElementById("tournament_generic_lines").style.backgroundPosition = bg_lines + "px 0px";
+                    bg_lines -= 0.25;
                 }, 15);
             }
 
@@ -28,7 +29,7 @@
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info/");
+                    request.open("GET", "./../../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -50,29 +51,14 @@
             
             function parse_data(game) {
 
-                var str = "";
-                if (game["c1_name"] != "" && game["c2_name"] != "") {
-                    str = " and ";
-                }
-                let p_name = game["c1_name"] + str + game["c2_name"];
-                //let set_name = game["set_name"];
-
                 if (startup) {
                     setTimeout(() => {
 
-                        document.getElementById("p_name_value").textContent = p_name;
-                        //document.getElementById("set_name_value").textContent = set_name;
-
-                        fade_in("p_name_location");
-                        //fade_in("set_name_location");
+                        fade_in("set_name_location");
 
                         startup = false;
 
                     }, 500);
-                }
-                else {
-                    update_value("p_name", p_name);
-                    //update_value("set_name", set_name);
                 }
                 return;
             }
@@ -90,16 +76,17 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
                 height:     1080px;
-                background: transparent;
+                /*background: transparent;*/
                 padding:    0px;
                 margin:     0px;
                 color:      #000000;
+                background: linear-gradient(to bottom, #FFFFFF, #FFFFFF);
             }
 
             .absolute { position: absolute; }
@@ -108,77 +95,67 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 155px;   height: 128px;
-                bottom: 8px;    left: 896px;
+                width: 512px;   height: 512px;
+                top: 32px;      left: 704px;
             }
 
             .tournament_logo_back {
-                width: 128px;   height: 128px;
+                width: 512px;   height: 512px;
             }
 
             .tournament_logo_lines {
-                width: 155px;   height: 128px;
-                background-image: url("../../img/logos/summit_logo_lines.png");
-                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
+                width: 512px;   height: 512px;
+                background-image: url("../../../img/logos/LynchburgLogoCity.png");
+                -webkit-mask-image: url("../../../img/logos/LynchburgLogoMaskWhite.png");
                 background-repeat: repeat-x;
+                background-size: 512px 512px;
             }
 
-            .set_panel {
-                width: 450px;   height: 56px;
-                top: 0px;       left: 735px;
-                z-index: -1;
+            .tournament_lines {
+                width: 2048px;  height: 512px;
+                top: 48px;      left: 0px;
+            }
+
+            .tournament_generic_lines {
+                top: -156px;
+                width: 1920px;  height: 512px;
+                background-image: url("../../../img/logos/LynchburgLogoBarsArcadian.png");
+                background-repeat: repeat-x;
+                background-size: 3840px 1024px;
             }
 
             .set_name_location {
-                font-size: 42px;
-                width: 1920px;  height: 32px;
-                top: 8px;       left: 0px;
+                font-size: 96px;
+                width: 1920px;  height: 108px;
+                top: 704px;      left: 0px;
                 font-family: "Bureau-Grot-Condensed";
                 text-transform: uppercase;
                 text-align: center;
                 letter-spacing: 2px;
-                line-height: 32px;
+                line-height: 108px;
                 opacity: 0;
-                transform: translate(0px, -10px);
-            }
-            .set_name_location.fade_out { opacity: 0; transform: translate(0px, -10px); }
-            .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .p_name_location {
-                font-size: 48px;
-                bottom: 0px;    left: 0px;
-                font-family: "Bureau-Grot-Condensed";
-                padding: 4px 8px 4px 8px;       text-transform: uppercase;
-                text-align: left;
-                background-color: rgba(0, 0, 0, 0.75);
                 color: #FFFFFF;
-                border: solid 8px #51CCC1;
-                opacity: 0;
                 transform: translate(0px, 10px);
             }
-            .p_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
-            .p_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
-
-            .game_box_location {
-                width: 448px;   height: 252px;
-                bottom: 0px;    right: 0px;
-                border: solid 8px #51CCC1;
-            }
+            .set_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
         </style>
     </head>
     <body>
+        <div style="background-color: #222222; position: absolute; top: 128px; width: 1920px; height: 1080px;"></div>
+        <div            id = "tournament_lines"         class = "absolute tournament_lines">
+            <div        id = "tournament_generic_lines" class = "absolute tournament_generic_lines"></div>
+        </div>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/summit_logo_back.png">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/LynchburgLogoMaskBlue.png">
+            <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../../img/logos/LynchburgLogoMain.svg" type = "image/svg+xml"></object>
             <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_summit.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
-            <span       id = "set_name_value"           class = "set_name_value"></span>
+            <span       id = "set_name_value"           class = "set_name_value">We'll be right back</span>
+            <!-- We'll be right back -->
+            <!-- Starting soon -->
         </div>
-        <div            id = "p_name_location"          class = "absolute fade_slide p_name_location">
-            <span       id = "p_name_value"             class = "p_name_value"></span>
-        </div>
-        <div            id = "game_box_location"        class = "absolute game_box_location"></div>
     </body>
 </html>

@@ -28,7 +28,7 @@
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info/");
+                    request.open("GET", "./../../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -102,8 +102,8 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
@@ -111,7 +111,7 @@
                 background: transparent;
                 padding:    0px;
                 margin:     0px;
-                color:      #000000;
+                color:      #FFFFFF;
             }
 
             .absolute { position: absolute; }
@@ -120,7 +120,7 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 155px;   height: 128px;
+                width: 128px;   height: 128px;
                 bottom: 58px;    left: 896px;
                 opacity: 0.5;
             }
@@ -130,10 +130,11 @@
             }
 
             .tournament_logo_lines {
-                width: 155px;   height: 128px;
-                background-image: url("../../img/logos/summit_logo_lines.png");
-                -webkit-mask-image: url("../../img/logos/tournament_logo_mask.png");
+                width: 128px;   height: 128px;
+                background-image: url("../../../img/logos/LynchburgLogoCity.png");
+                -webkit-mask-image: url("../../../img/logos/LynchburgLogoMask.png");
                 background-repeat: repeat-x;
+                background-size: 128px 128px;
             }
 
             .set_panel {
@@ -183,7 +184,7 @@
             .p1_hud_location {
                 bottom: 0px;    left: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #51CCC1;
+                border: solid 8px #E35252;
             }
 
             .p1_name_location {
@@ -212,6 +213,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 opacity: 0;
                 transform: translate(0px, 10px);
@@ -222,7 +224,7 @@
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #51CCC1;
+                border: solid 8px #E35252;
             }
 
             .p2_name_location {
@@ -251,6 +253,7 @@
                 font-family: "Bureau-Grot-Condensed";
                 padding: 4px 8px 4px 8px;
                 text-align: right;  text-transform: uppercase;
+                color: #000000;
                 background-color: #FFFFFF;
                 text-align: left;
                 opacity: 0;
@@ -263,14 +266,15 @@
     </head>
     <body>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/summit_logo_back.png">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/LynchburgLogoMaskRed.png">
+            <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../../img/logos/LynchburgLogoMain.svg" type = "image/svg+xml"></object>
             <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_summit.png">
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../../img/elements/set_panel.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
-        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_summit_lower.png">
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../../img/elements/set_panel_lower.png">
         <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
             <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>

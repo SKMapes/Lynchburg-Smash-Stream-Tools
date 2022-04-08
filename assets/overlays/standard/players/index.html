@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta   charset = "UTF-8">
+        <script>
+            let startup = true;
+
+            window.onload = init;
+
+            var bg_lines = 0;
+
+            function init() {
+                async function main() {
+                    const game = await get_info();
+                    parse_data(game);
+                }
+                main();
+                setInterval( () => {
+                    main();
+                }, 500);
+                setInterval( () => {
+                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
+                    bg_lines -= 0.125;
+                }, 15);
+            }
+
+            function get_info(file) {
+                return new Promise(function(resolve) {
+                    const request = new XMLHttpRequest();
+                    request.addEventListener("load", request_listener);
+                    request.open("GET", "./../../game_info.json");
+                    request.send();
+
+                    function request_listener () {
+                        resolve(JSON.parse(request.responseText))
+                    }
+                })
+            }
+
+            function fade_out(id, callback) {
+                document.getElementById(id).classList.toggle("fade_out", true);
+                document.getElementById(id).classList.toggle("fade_in", false);
+                setTimeout( function() { callback(); }, 500);
+            }
+
+            function fade_in(id) {
+                document.getElementById(id).classList.toggle("fade_in", true);
+                document.getElementById(id).classList.toggle("fade_out", false);
+            }
+            
+            function parse_data(game) {
+
+                var str = "";
+                if (game["p1_name"] != "" && game["p2_name"] != "") {
+                    str = " VS ";
+                }
+                let p_name = game["p1_name"] + str + game["p2_name"];
+                let set_name = game["set_name"];
+                let event_name = game["event_name"];
+
+                if (startup) {
+                    setTimeout(() => {
+
+                        document.getElementById("p_name_value").textContent = p_name;
+                        document.getElementById("event_name_value").textContent = set_name;
+                        document.getElementById("set_name_value").textContent = event_name;
+
+                        fade_in("p_name_location");
+                        fade_in("set_name_location");
+                        fade_in("event_name_location");
+
+                        startup = false;
+
+                    }, 500);
+                }
+                else {
+                    update_value("p_name", p_name);
+                    update_value("event_name", set_name);
+                    update_value("set_name", event_name);
+                }
+                return;
+            }
+
+            function update_value(id, value) {
+                if (document.getElementById(id + "_value").textContent != value) {
+                    fade_out(id + "_location", function() {});
+                    setTimeout( function() {
+                        document.getElementById(id + "_value").textContent = value;
+                        fade_in(id + "_location");
+                    }, 500);
+                }
+                return;
+            }
+
+        </script>
+        <style>
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+
+            body {
+                width:      1920px;
+                height:     1080px;
+                background: transparent;
+                padding:    0px;
+                margin:     0px;
+                color:      #FFFFFF;
+            }
+
+            .absolute { position: absolute; }
+            .fade { transition: opacity 0.5s; transition-timing-function: ease-in-out; }
+            .slide { transition: transform 0.5s; transition-timing-function: ease-in-out; }
+            .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
+
+            .tournament_logo {
+                width: 128px;   height: 128px;
+                bottom: 58px;    left: 896px;
+                opacity: 0.5;
+            }
+
+            .tournament_logo_back {
+                width: 128px;   height: 128px;
+            }
+
+            .tournament_logo_lines {
+                width: 128px;   height: 128px;
+                background-image: url("../../../img/logos/LynchburgLogoCity.png");
+                -webkit-mask-image: url("../../../img/logos/LynchburgLogoMask.png");
+                background-repeat: repeat-x;
+                background-size: 128px 128px;
+            }
+
+            .set_panel {
+                width: 450px;   height: 56px;
+                top: 0px;       left: 735px;
+                z-index: -1;
+                opacity: 0.5;
+            }
+
+            .set_name_location {
+                font-size: 42px;
+                width: 1920px;  height: 32px;
+                top: 8px;       left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                text-transform: uppercase;
+                text-align: center;
+                letter-spacing: 2px;
+                line-height: 32px;
+                opacity: 0;
+                transform: translate(0px, -10px);
+            }
+            .set_name_location.fade_out { opacity: 0; transform: translate(0px, -10px); }
+            .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .event_panel {
+                width: 450px;   height: 56px;
+                bottom: 0px;       left: 735px;
+                z-index: -1;
+                opacity: 0.5;
+            }
+
+            .event_name_location {
+                font-size: 42px;
+                width: 1920px;  height: 32px;
+                bottom: 8px;    left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                text-transform: uppercase;
+                text-align: center;
+                letter-spacing: 2px;
+                line-height: 32px;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .event_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .event_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .p_name_location {
+                font-size: 48px;
+                bottom: 0px;    left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;       text-transform: uppercase;
+                text-align: left;
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+                border: solid 8px #E35252;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .p_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .game_box_location {
+                width: 448px;   height: 252px;
+                bottom: 0px;    right: 0px;
+                border: solid 8px #E35252;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div            id = "tournament_logo"          class = "absolute tournament_logo">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/LynchburgLogoMaskRed.png">
+            <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../../img/logos/LynchburgLogoMain.svg" type = "image/svg+xml"></object>
+            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
+        </div>
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../../img/elements/set_panel.png">
+        <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
+            <span       id = "set_name_value"           class = "set_name_value"></span>
+        </div>
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../../img/elements/set_panel_lower.png">
+        <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
+            <span       id = "event_name_value"         class = "event_name_value"></span>
+        </div>
+        <div            id = "p_name_location"          class = "absolute fade_slide p_name_location">
+            <span       id = "p_name_value"             class = "p_name_value"></span>
+        </div>
+        <div            id = "game_box_location"        class = "absolute game_box_location"></div>
+    </body>
+</html>

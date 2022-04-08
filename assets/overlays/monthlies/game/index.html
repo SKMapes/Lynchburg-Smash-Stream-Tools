@@ -18,13 +18,17 @@
                 setInterval( () => {
                     main();
                 }, 500);
+                setInterval( () => {
+                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
+                    bg_lines -= 0.125;
+                }, 15);
             }
 
             function get_info(file) {
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info/");
+                    request.open("GET", "./../../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -46,18 +50,11 @@
             
             function parse_data(game) {
 
-                let set_name = game["set_name"];
-
                 let p1_name = game["p1_name"];
                 let p2_name = game["p2_name"];
-
-                if (set_name == "Grand Finals" || set_name == "Grand Finals Reset") {
-                    p1_name += " [" + game["p1_bracket"] + "]";
-                    p2_name = "[" + game["p2_bracket"] + "] " + p2_name;
-                }
-
                 let p1_score = game["p1_score"];
                 let p2_score = game["p2_score"];
+                let set_name = game["set_name"];
                 let event_name = game["event_name"];
 
                 if (startup) {
@@ -105,8 +102,8 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
@@ -123,13 +120,21 @@
             .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
 
             .tournament_logo {
-                width: 156px;   height: 128px;
-                bottom: 84px;    left: 911px;
+                width: 128px;   height: 128px;
+                bottom: 58px;    left: 896px;
                 opacity: 0.5;
             }
 
             .tournament_logo_back {
-                width: 100px;
+                width: 128px;   height: 128px;
+            }
+
+            .tournament_logo_lines {
+                width: 128px;   height: 128px;
+                background-image: url("../../../img/logos/LynchburgLogoCityRed.png");
+                -webkit-mask-image: url("../../../img/logos/LynchburgLogoMask.png");
+                background-repeat: repeat-x;
+                background-size: 128px 128px;
             }
 
             .set_panel {
@@ -179,7 +184,7 @@
             .p1_hud_location {
                 bottom: 0px;    left: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #FCD006;
+                border: solid 8px #E35252;
             }
 
             .p1_name_location {
@@ -219,7 +224,7 @@
             .p2_hud_location {
                 bottom: 0px;    right: 0px;
                 width: 224px;   height: 252px;
-                border: solid 8px #FCD006;
+                border: solid 8px #E35252;
             }
 
             .p2_name_location {
@@ -261,13 +266,15 @@
     </head>
     <body>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/2022_ESPORTS_Monogram_Outline_Yellow.png">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/LynchburgLogoMaskWhite.png">
+            <object     id = "tournament_logo_back"     class = "absolute tournament_logo_back" data = "../../../img/logos/LynchburgLogoMainRed.svg" type = "image/svg+xml"></object>
+            <div        id = "tournament_logo_lines"    class = "absolute tournament_logo_lines"></div>
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_randolph.png">
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../../img/elements/set_panel.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
-        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower_randolph.png">
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../../img/elements/set_panel_lower.png">
         <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
             <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>

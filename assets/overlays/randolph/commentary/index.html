@@ -28,7 +28,7 @@
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "http://localhost:8000/info/");
+                    request.open("GET", "./../../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -90,8 +90,8 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width:      1920px;
@@ -163,9 +163,9 @@
     </head>
     <body>
         <div            id = "tournament_logo"          class = "absolute tournament_logo">
-            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../img/logos/2022_ESPORTS_Monogram_Outline_Yellow.png">
+            <img        id = "tournament_logo_back"     class = "absolute tournament_logo_back"  src = "../../../img/logos/2022_ESPORTS_Monogram_Outline_Yellow.png">
         </div>
-        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel_randolph.png">
+        <img            id = "set_panel"                class = "absolute set_panel"  src = "../../../img/elements/set_panel_randolph.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>

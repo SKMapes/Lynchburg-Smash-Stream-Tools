@@ -222,11 +222,13 @@ app.post("/", function(request, response) {
     if ((current_scene == "Game" || current_scene == "Game (Swap Cameras)") && (request.body.scene_list == "Game" || request.body.scene_list == "Game (Swap Cameras)")) {
         transition = "Fade";
     }
-    console.log("request.body.scene_list = " + request.body.scene_list);
-    console.log("current_scene = " + current_scene);
-    //obs.send('SetCurrentSceneTransition',   { 'transition': transition });
-    obs.send('SetCurrentScene',             { 'scene-name': request.body.scene_list });
-    current_scene = request.body.scene_list;
+    if (current_scene != request.body.scene_list) {
+        console.log("request.body.scene_list = " + request.body.scene_list);
+        console.log("current_scene = " + current_scene);
+        //obs.send('SetCurrentSceneTransition',   { 'transition': transition });
+        obs.send('SetCurrentScene',             { 'scene-name': request.body.scene_list });
+        current_scene = request.body.scene_list;
+    }
 });
 app.post("/tournament", function(request, response) {
     console.log(request.body);

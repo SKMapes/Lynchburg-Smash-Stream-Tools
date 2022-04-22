@@ -7,8 +7,6 @@
 
             window.onload = init;
 
-            var bg_lines = 0;
-
             function init() {
                 async function main() {
                     const game = await get_info();
@@ -18,17 +16,13 @@
                 setInterval( () => {
                     main();
                 }, 500);
-                setInterval( () => {
-                    document.getElementById("tournament_logo_lines").style.backgroundPosition = bg_lines + "px 0px";
-                    bg_lines -= 0.125;
-                }, 15);
             }
 
             function get_info(file) {
                 return new Promise(function(resolve) {
                     const request = new XMLHttpRequest();
                     request.addEventListener("load", request_listener);
-                    request.open("GET", "./../../game_info.json");
+                    request.open("GET", "./../game_info.json");
                     request.send();
 
                     function request_listener () {
@@ -50,22 +44,27 @@
             
             function parse_data(game) {
 
-                var str = "";
-                if (game["p1_name"] != "" && game["p2_name"] != "") {
-                    str = " VS ";
-                }
-                let p_name = game["p1_name"] + str + game["p2_name"];
+                let p1_name = game["p1_name"];
+                let p2_name = game["p2_name"];
+                let p1_score = game["p1_score"];
+                let p2_score = game["p2_score"];
                 let set_name = game["set_name"];
                 let event_name = game["event_name"];
 
                 if (startup) {
                     setTimeout(() => {
 
-                        document.getElementById("p_name_value").textContent = p_name;
+                        document.getElementById("p1_name_value").textContent = p1_name;
+                        document.getElementById("p2_name_value").textContent = p2_name;
+                        document.getElementById("p1_score_value").textContent = p1_score;
+                        document.getElementById("p2_score_value").textContent = p2_score;
                         document.getElementById("event_name_value").textContent = set_name;
                         document.getElementById("set_name_value").textContent = event_name;
 
-                        fade_in("p_name_location");
+                        fade_in("p1_name_location");
+                        fade_in("p2_name_location");
+                        fade_in("p1_score_location");
+                        fade_in("p2_score_location");
                         fade_in("set_name_location");
                         fade_in("event_name_location");
 
@@ -74,7 +73,10 @@
                     }, 500);
                 }
                 else {
-                    update_value("p_name", p_name);
+                    update_value("p1_name", p1_name);
+                    update_value("p2_name", p2_name);
+                    update_value("p1_score", p1_score);
+                    update_value("p2_score", p2_score);
                     update_value("event_name", set_name);
                     update_value("set_name", event_name);
                 }
@@ -94,8 +96,8 @@
 
         </script>
         <style>
-            @font-face { font-family: "Bureau-Grot";            src: url("../../../fonts/BureauGrot.ttf") format("truetype"); }
-            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../../fonts/BureauGrotCondensed.otf") format("opentype"); }
+            @font-face { font-family: "Bureau-Grot";            src: url("../../fonts/BureauGrot.ttf") format("truetype"); }
+            @font-face { font-family: "Bureau-Grot-Condensed";  src: url("../../fonts/BureauGrotCondensed.otf") format("opentype"); }
 
             body {
                 width: 100%;    height: 100%;   /* 1080p is what this should often be, but the overlay will scale down to 720p fine */
@@ -111,14 +113,9 @@
                 color: var(--color-font-main);
             }
 
-            .absolute { position: absolute; }
-            .fade { transition: opacity 0.5s; transition-timing-function: ease-in-out; }
-            .slide { transition: transform 0.5s; transition-timing-function: ease-in-out; }
-            .fade_slide { transition: opacity 0.5s, transform 0.5s; transition-timing-function: ease-in-out; }
-
             .tournament_logo {
                 position: fixed;
-                bottom: 60px;
+                bottom: 56px;
                 width: 100%;    height: 128px;
                 overflow: hidden;
 
@@ -135,7 +132,7 @@
                 position: absolute;
                 width: 128px;   height: 100%;
                 left: 50%;  transform: translate(-50%, 0);
-                -webkit-mask-image: url("../../../img/logos/LynchburgLogoMask.png");
+                -webkit-mask-image: url("../../img/logos/LynchburgLogoMask.png");
             }
 
             .tournament_logo_scroll {
@@ -160,13 +157,10 @@
             }
 
             .set_panel {
-                width: 100%;
-                left: 50%;  transform: translate(-50%, 0);
+                width: 450px;   height: 56px;
+                top: 0px;       left: 735px;
                 z-index: -1;
                 opacity: 0.5;
-            }
-            .set_panel > * {
-                left: 50%;  transform: translate(-50%, 0);
             }
 
             .set_name_location {
@@ -178,22 +172,17 @@
                 text-align: center;
                 letter-spacing: 2px;
                 line-height: 32px;
-                color: var(--color-font-secondary);
-
-                opacity: 0; transform: translate(0px, -10px);
+                opacity: 0;
+                transform: translate(0px, -10px);
             }
             .set_name_location.fade_out { opacity: 0; transform: translate(0px, -10px); }
             .set_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
             .event_panel {
-                bottom: 0px;
-                width: 100%;    height: 96px;
-                left: 50%;  transform: translate(-50%, 0);
+                width: 450px;   height: 56px;
+                bottom: 0px;       left: 735px;
                 z-index: -1;
                 opacity: 0.5;
-            }
-            .event_panel > * {
-                left: 50%;  transform: translate(-50%, 0);
             }
 
             .event_name_location {
@@ -205,61 +194,131 @@
                 text-align: center;
                 letter-spacing: 2px;
                 line-height: 32px;
-                color: var(--color-font-secondary);
-
-                opacity: 0; transform: translate(0px, 10px);
+                opacity: 0;
+                transform: translate(0px, 10px);
             }
             .event_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
             .event_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
-            .p_name_location {
-                font-size: 48px;
+            .p1_hud_location {
                 bottom: 0px;    left: 0px;
+                width: 224px;   height: 252px;
+                border: solid 8px #E35252;
+            }
+
+            .p1_name_location {
+                font-size: 32px;
+                width: 216px;
+                bottom: 0px;        left: 0px;
                 font-family: "Bureau-Grot-Condensed";
-                padding: 4px 8px 4px 8px;       text-transform: uppercase;
+                padding: 4px;       text-transform: uppercase;
                 text-align: left;
                 background-color: rgba(0, 0, 0, 0.75);
                 color: #FFFFFF;
-                border: solid 8px #E35252;
                 opacity: 0;
                 transform: translate(0px, 10px);
             }
-            .p_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
-            .p_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+            .p1_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p1_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
 
-            .game_box_location {
-                width: 448px;   height: 252px;
+            .p1_name_value {
+                width: 186px;
+                float: left;
+            }
+
+            .p1_score_location {
+                font-size: 32px;
+                bottom: 0px;        right: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;
+                text-align: right;  text-transform: uppercase;
+                color: #000000;
+                background-color: #FFFFFF;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .p1_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p1_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .p2_hud_location {
                 bottom: 0px;    right: 0px;
+                width: 224px;   height: 252px;
                 border: solid 8px #E35252;
             }
 
+            .p2_name_location {
+                font-size: 32px;
+                width: 216px;
+                bottom: 0px;    right: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px;   text-transform: uppercase;
+                text-align: right;
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .p2_name_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p2_name_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
+
+            .p2_name_value_container {
+                width: 186px;
+                float: right;
+            }
+
+            .p2_score_location {
+                font-size: 32px;
+                bottom: 0px;        left: 0px;
+                font-family: "Bureau-Grot-Condensed";
+                padding: 4px 8px 4px 8px;
+                text-align: right;  text-transform: uppercase;
+                color: #000000;
+                background-color: #FFFFFF;
+                text-align: left;
+                opacity: 0;
+                transform: translate(0px, 10px);
+            }
+            .p2_score_location.fade_out { opacity: 0; transform: translate(0px, 10px); }
+            .p2_score_location.fade_in { opacity: 1; transform: translate(0px, 0px); }
         </style>
     </head>
     <body>
         <div            id = "tournament_logo"          class = "tournament_logo">
-            <object     id = "tournament_logo_back"     class = "tournament_logo_back"      data = "../../../img/logos/LynchburgLogoMaskWhite.png"></object>
-            <object     id = "tournament_logo_main"     class = "tournament_logo_back"      data = "../../../img/logos/LynchburgLogoMainRed.svg"></object>
+            <object     id = "tournament_logo_back"     class = "tournament_logo_back"      data = "../../img/logos/LynchburgLogoMaskRed.png"></object>
+            <object     id = "tournament_logo_main"     class = "tournament_logo_back"      data = "../../img/logos/LynchburgLogoMainWhite.svg"></object>
             <div        id = "tournament_logo_lines"    class = "tournament_logo_lines">
-                <object id = "tournament_logo_scroll"   class = "tournament_logo_scroll"    data = "../../../img/logos/LynchburgLogoCityRed.svg"></object>
+                <object id = "tournament_logo_scroll"   class = "tournament_logo_scroll"    data = "../../img/logos/LynchburgLogoCityWhite.svg"></object>
             </div>
         </div>
-        <div            id = "set_panel"                class = "absolute set_panel">
-            <object     id = "set_panel_inner"          class = "absolute set_panel_inner"  data = "../../../img/elements/LynchburgUpperPanelWhite.png"></object>
-            <object     id = "set_panel_border"         class = "absolute set_panel_border" data = "../../../img/elements/LynchburgUpperPanelBorderRed.png"></object>
-        </div>
-        <div            id = "event_panel"              class = "absolute event_panel">
-            <object     id = "event_panel_inner"        class = "absolute event_panel_inner"    data = "../../../img/elements/LynchburgLowerPanelWhite.png"></object>
-            <object     id = "event_panel_border"       class = "absolute event_panel_border"   data = "../../../img/elements/LynchburgLowerPanelBorderRed.png"></object>
-        </div>
+        <!--<img            id = "set_panel"                class = "absolute set_panel"  src = "../../img/elements/set_panel.png">
         <div            id = "set_name_location"        class = "absolute fade_slide set_name_location">
             <span       id = "set_name_value"           class = "set_name_value"></span>
         </div>
+        <img            id = "event_panel"              class = "absolute event_panel"  src = "../../img/elements/set_panel_lower.png">
         <div            id = "event_name_location"      class = "absolute fade_slide event_name_location">
             <span       id = "event_name_value"         class = "event_name_value"></span>
         </div>
-        <div            id = "p_name_location"          class = "absolute fade_slide p_name_location">
-            <span       id = "p_name_value"             class = "p_name_value"></span>
+        <div            id = "p1_hud_location"          class = "absolute p1_hud_location">
+            <span       id = "p1_id_value"              class = "p1_id_value"></span>
+            <div        id = "p1_name_location"         class = "absolute fade_slide p1_name_location">
+                <div    id = "p1_name_value_container"  class = "p1_name_value">
+                    <span   id = "p1_name_value"            class = "p1_name_value"></span>
+                </div>
+            </div>
+            <div        id = "p1_score_location"        class = "absolute fade_slide p1_score_location">
+                <span   id = "p1_score_value"           class = "p1_score_value"></span>
+            </div>
         </div>
-        <div            id = "game_box_location"        class = "absolute game_box_location"></div>
+        <div            id = "p2_hud_location"          class = "absolute p2_hud_location">
+            <span       id = "p2_id_value"              class = "p2_id_value"></span>
+            <div        id = "p2_name_location"         class = "absolute fade_slide p2_name_location">
+                <div    id = "p2_name_value_container"  class = "p2_name_value_container">
+                    <span   id = "p2_name_value"            class = "p2_name_value"></span>
+                </div>
+            </div>
+            <div        id = "p2_score_location"        class = "absolute fade_slide p2_score_location">
+                <span   id = "p2_score_value"           class = "p2_score_value"></span>
+            </div>
+        </div>-->
     </body>
 </html>
